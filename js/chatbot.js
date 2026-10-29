@@ -337,7 +337,7 @@
     return "Puedo consultar el perfil académico público y los trabajos de estos dos cursos: Desarrollo de Aplicaciones y Algoritmos y Estructura de Datos. Prueba: «¿Qué temas tiene Desarrollo de Aplicaciones?» o «Dame la actividad 2 de Algoritmos, semana 5».";
   }
 
-  async function ask(question) {
+  // Se completará con la URL pública del servicio de Render después de desplegarlo.\n  const AI_API_URL = "https://RENDER_SERVICE_URL.onrender.com/api/chat";\n\n  async function ask(question) {
     const clean = question.trim();
     if (!clean) return;
     addMessage(clean, "user");
@@ -347,12 +347,33 @@
     messages.appendChild(waiting);
     messages.scrollTop = messages.scrollHeight;
     try {
-      const response = await reply(clean);
+      let answer;
+      if (AI_API_URL.includes("RENDER_SERVICE_URL")) {
+        // Hasta desplegar Render, conserva el asistente actual sin interrumpir sus funciones.
+        answer = await reply(clean);
+      } else {
+        const history = [...messages.querySelectorAll(".portfolio-chat-msg")]
+          .slice(-10)
+          .map(el => ({
+            role: el.classList.contains("portfolio-chat-user") ? "user" : "assistant",
+            content: el.textContent.trim()
+          }))
+          .filter(m => m.content)
+          .map(m => ({ role: m.role, content: m.content.slice(0, 4000) }));
+        const res = await fetch(AI_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: history })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "No se pudo consultar la API.");
+        answer = data.answer || "No recibí una respuesta. Inténtalo de nuevo.";
+      }
       waiting.remove();
-      addMessage(response, "bot");
-    } catch (_error) {
+      addMessage(answer, "bot");
+    } catch (error) {
       waiting.remove();
-      addMessage("No pude consultar esa información ahora. Inténtalo otra vez o consulta directamente la sección de cursos y trabajos.", "bot");
+      addMessage(error?.message || "No pude consultar la IA ahora. Inténtalo otra vez.", "bot");
     }
   }
 
