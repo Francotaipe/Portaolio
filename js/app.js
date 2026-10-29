@@ -165,12 +165,12 @@ function renderCourseExplorer(course) {
     const row = block.querySelector(".week-buttons-row");
 
     for(let w=1;w<=4;w++){
-      const n = groupByActivity(countFor(course,p,w),course,w).length;
+      const n = countFor(course,p,w).length;
       const btn = document.createElement("button");
       btn.className = "week-select-button";
       btn.dataset.period=p;
       btn.dataset.week=w;
-      btn.innerHTML = `<strong>Semana ${globalWeekNumber(p,w)}</strong><span>${n} ${n===1?"actividad":"actividades"}</span>`;
+      btn.innerHTML = `<strong>Semana ${globalWeekNumber(p,w)}</strong><span>${n} ${n===1?"trabajo":"trabajos"}</span>`;
       row.appendChild(btn);
       btn.addEventListener("click", ()=>{
         selectedPeriod=p;
