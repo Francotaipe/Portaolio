@@ -116,13 +116,13 @@
     if (worksCache) return worksCache;
     if (worksPromise) return worksPromise;
     worksPromise = (async () => {
-      if (!window.supabaseClient) return { error: "No se pudo conectar con el catálogo público de trabajos." };
-      let result = await window.supabaseClient.from("trabajos")
+      if (typeof supabaseClient === "undefined" || !supabaseClient) return { error: "No se pudo conectar con el catálogo público de trabajos." };
+      let result = await supabaseClient.from("trabajos")
         .select("id,curso,periodo,semana,actividad,titulo,descripcion,fecha,archivo_url,archivo_nombre,creado_en")
         .order("fecha", { ascending: false })
         .limit(500);
       if (result.error && /actividad|column/i.test(result.error.message || "")) {
-        result = await window.supabaseClient.from("trabajos")
+        result = await supabaseClient.from("trabajos")
           .select("id,curso,periodo,semana,titulo,descripcion,fecha,archivo_url,archivo_nombre,creado_en")
           .order("fecha", { ascending: false })
           .limit(500);
