@@ -2,6 +2,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>{const d=document.createElement("div");d.textContent=v??"";return d.innerHTML};
 const typeIcon=n=>{const x=String(n||"").split(".").pop().toLowerCase();if(x==="pdf")return"PDF";if(["png","jpg","jpeg","gif","webp"].includes(x))return"IMG";if(["doc","docx"].includes(x))return"DOC";if(["zip","rar","7z"].includes(x))return"ZIP";return"FILE"};
 const courseName=k=>k==="desarrollo"?"Desarrollo de Aplicaciones":"Algoritmos y Estructura de Datos";
+const globalWeekNumber=(period,week)=>((Number(period)-1)*4)+Number(week);
 function normalizeCourse(value){
   const s=String(value??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   if(s.includes("desarrollo") && (s.includes("aplic") || s.includes("software") || s.includes("program")))return "desarrollo";
@@ -94,8 +95,8 @@ function populateSelect(selectId,items,current="",placeholder="Selecciona..."){
   if(current!==""&&current!=null)s.value=String(current);
 }
 
-function populateWeeks(selectId,current=""){
-  populateSelect(selectId,[1,2,3,4].map(n=>({value:n,label:`Semana ${n}`})),current,"Selecciona una semana");
+function populateWeeks(selectId,period,current=""){
+  populateSelect(selectId,[1,2,3,4].map(n=>({value:n,label:`Semana ${globalWeekNumber(period,n)}`})),current,"Selecciona una semana");
 }
 
 function populateActivitySelect(selectId,course,week,current=""){
@@ -141,7 +142,7 @@ function renderCourseExplorer(course){
       const b=document.createElement("button");
       b.type="button";
       b.className="week-select-button";
-      b.innerHTML=`<strong>Semana ${w}</strong><span>${n} ${n===1?"actividad":"actividades"}</span>`;
+      b.innerHTML=`<strong>Semana ${globalWeekNumber(p,w)}</strong><span>${n} ${n===1?"actividad":"actividades"}</span>`;
       row.appendChild(b);
       b.addEventListener("click",()=>{
         selectedPeriod=p;selectedWeek=w;
@@ -164,9 +165,9 @@ function showSelectedWeek(){
   if(!selectedCourse||!selectedPeriod||!selectedWeek)return;
   $("noSelectedWeek").classList.add("hidden");
   $("selectedWeekPanel").classList.remove("hidden");
-  $("selectedWeekTitle").textContent=`${courseName(selectedCourse)} · Período ${selectedPeriod} · Semana ${selectedWeek}`;
+  $("selectedWeekTitle").textContent=`${courseName(selectedCourse)} · Período ${selectedPeriod} · Semana ${globalWeekNumber(selectedPeriod,selectedWeek)}`;
   $("selectedWeekSub").textContent="Sube un trabajo nuevo. Para editarlo puedes cambiar su período, semana o actividad.";
-  $("selectedInfo").textContent=`${courseName(selectedCourse)} · Período ${selectedPeriod} · Semana ${selectedWeek}`;
+  $("selectedInfo").textContent=`${courseName(selectedCourse)} · Período ${selectedPeriod} · Semana ${globalWeekNumber(selectedPeriod,selectedWeek)}`;
   $("fecha").value=new Date().toISOString().slice(0,10);
   populateActivitySelect("actividad",selectedCourse,selectedWeek);
   renderSelectedWeek();
@@ -292,7 +293,7 @@ function openEditWork(id){
     {value:"algoritmos",label:"Algoritmos y Estructura de Datos"}
   ],w.curso,"Selecciona un curso");
   populateSelect("editPeriodo",[1,2,3,4].map(n=>({value:n,label:`Período ${n}`})),w.periodo,"Selecciona un período");
-  populateWeeks("editSemana",w.semana);
+  populateWeeks("editSemana",w.periodo,w.semana);
   populateActivitySelect("editActividad",w.curso,w.semana,activity);
   $("editTitulo").value=cleanTitle(normalizeStoredText(w.titulo))||fileBaseName(w.archivo_nombre);
   $("editFecha").value=w.fecha||"";
@@ -377,6 +378,11 @@ $("editClose").addEventListener("click",closeEditWork);
 $("editCancel").addEventListener("click",closeEditWork);
 $("editCurso").addEventListener("change",()=>{
   populateActivitySelect("editActividad",$("editCurso").value,$("editSemana").value,$("editActividad").value);
+});
+$("editPeriodo").addEventListener("change",()=>{
+  const currentWeek=$("editSemana").value;
+  populateWeeks("editSemana",Number($("editPeriodo").value)||1,currentWeek);
+  populateActivitySelect("editActividad",$("editCurso").value,Number($("editSemana").value)||0);
 });
 $("editSemana").addEventListener("change",()=>populateActivitySelect("editActividad",$("editCurso").value,Number($("editSemana").value)||0));
 $("editModal").addEventListener("click",e=>{if(e.target.id==="editModal")closeEditWork()});
