@@ -138,11 +138,11 @@ function renderCourseExplorer(course){
     block.innerHTML=`<div class="period-explorer-head"><button class="period-select-button" type="button">Período ${p}</button><span>${pCount} ${pCount===1?"trabajo":"trabajos"}</span></div><div class="week-buttons-row"></div>`;
     const row=block.querySelector(".week-buttons-row");
     for(let w=1;w<=4;w++){
-      const n=groupByActivity(countWorks(course,p,w)).length;
+      const n=countWorks(course,p,w).length;
       const b=document.createElement("button");
       b.type="button";
       b.className="week-select-button";
-      b.innerHTML=`<strong>Semana ${globalWeekNumber(p,w)}</strong><span>${n} ${n===1?"actividad":"actividades"}</span>`;
+      b.innerHTML=`<strong>Semana ${globalWeekNumber(p,w)}</strong><span>${n} ${n===1?"trabajo":"trabajos"}</span>`;
       row.appendChild(b);
       b.addEventListener("click",()=>{
         selectedPeriod=p;selectedWeek=w;
