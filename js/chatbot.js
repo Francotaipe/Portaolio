@@ -194,6 +194,44 @@
       const titles = [...new Set(rows.map(workTitle).filter(Boolean))].slice(0, 8);
       return COURSE_INFO[course].name + "\n\n" + COURSE_INFO[course].description + "\n\nTemas que puedes estudiar:\n• " + COURSE_INFO[course].topics.join("\n• ") + "\n\nEn el portafolio hay " + rows.length + " trabajo(s) publicado(s) para este curso." + (titles.length ? "\nAlgunos títulos del catálogo:\n• " + titles.join("\n• ") : "") + "\n\nTambién puedo buscar los archivos registrados. Ejemplos: «Dame los trabajos de Desarrollo de Aplicaciones, semana 5» o «Busca la actividad 2 de Algoritmos, período 2».";
     }
+    // Si el usuario no indica el curso, buscar la actividad en ambos cursos.
+    // Ejemplo: "dame la actividad 2 de la semana 7".
+    if (!course && /(trabajo|trabajos|actividad|actividades|archivo|documento|dame|mostrar|buscar|descargar|enlace|pdf|word)/.test(q) &&
+        (getGlobalWeekFromQuestion(q) !== null || getPeriodFromQuestion(q) !== null || /actividad\\s*(?:n(?:ro|umero)?\\.?\\s*)?#?\\s*\\d+/.test(q))) {
+      const result = await loadPublicWorks();
+      if (result.error) return result.error;
+      let rows = [...result.data];
+      const globalWeek = getGlobalWeekFromQuestion(q);
+      const periodAsked = getPeriodFromQuestion(q);
+      if (globalWeek !== null) {
+        const parsed = localWeek(globalWeek);
+        const m = q.match(/(?:semana|sem)\\s*(?:n(?:ro|umero)?\\.?\\s*)?(\\d{1,2})/);
+        const statedWeek = Number(m?.[1]);
+        const target = periodAsked && statedWeek <= 4
+          ? { period: periodAsked, week: statedWeek, global: (periodAsked - 1) * 4 + statedWeek }
+          : parsed;
+        rows = rows.filter(w => Number(w.periodo) === target.period && Number(w.semana) === target.week);
+      } else if (periodAsked) {
+        rows = rows.filter(w => Number(w.periodo) === periodAsked);
+      }
+      const activityMatch = q.match(/actividad\\s*(?:n(?:ro|umero)?\\.?\\s*)?#?\\s*(\\d+)/);
+      if (activityMatch) {
+        const wanted = Number(activityMatch[1]);
+        rows = rows.filter(w =>
+          (w.actividad !== undefined && w.actividad !== null && Number(w.actividad) === wanted) ||
+          normalizeText(w.titulo).includes("actividad " + wanted) ||
+          normalizeText(w.archivo_nombre).includes("actividad " + wanted)
+        );
+      }
+      if (!rows.length) {
+        return "No encontré una actividad publicada que coincida con esa semana o período en los dos cursos. Verifica el número y, si quieres, dime también el nombre del curso. Los trabajos guardados no se modificaron.";
+      }
+      const weekLabel = globalWeek !== null ? " · Semana " + globalWeek : "";
+      const periodLabel = periodAsked ? " · Período " + periodAsked : "";
+      return "Encontré " + rows.length + " trabajo(s) coincidente(s)" + weekLabel + periodLabel + " en tus cursos:\\n\\n" +
+        rows.slice(0, 12).map((w, i) => courseLabel(normalizeText(w.curso).includes("desarrollo") ? "desarrollo" : "algoritmos") + "\\n" + describeWork(w, i)).join("\\n\\n") +
+        (rows.length > 12 ? "\\n\\nMostrando los primeros 12 resultados." : "");
+    }
     if (course && /(trabajo|trabajos|actividad|actividades|archivo|documento|dame|mostrar|buscar|descargar|enlace|pdf|word)/.test(q)) {
       const result = await loadPublicWorks();
       if (result.error) return result.error;
