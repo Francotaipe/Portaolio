@@ -5,11 +5,11 @@
   const style = document.createElement("style");
   style.textContent =
     "#portfolioChatWidget{position:fixed;left:0;right:0;bottom:8px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
-    "#portfolioChatToggle{pointer-events:auto;position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;width:120px;height:120px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer}" +
+    "#portfolioChatToggle{pointer-events:auto;position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;width:120px;height:120px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:portfolioPikachuWalk 28s linear infinite}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
     ".portfolio-pikachu{display:inline-flex;width:116px;height:116px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
     ".portfolio-pikachu img{display:block;width:116px;height:116px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 2px 2px #0002);animation:portfolioPokemonFace 28s linear infinite}" +
-    "#portfolioPikachuBubble{position:absolute;left:50%;bottom:105px;transform:translateX(-50%);width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
+    "#portfolioPikachuBubble{position:absolute;left:50%;bottom:105px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
     "#portfolioPikachuBubble:after{content:\"\";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #d6e6f6;border-bottom:1px solid #d6e6f6;transform:translateX(-50%) rotate(45deg)}" +
     "@keyframes portfolioBubbleFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}" +
     "#portfolioChatWindow{display:none;position:fixed;left:12px;bottom:82px;width:min(360px,calc(100vw - 24px));height:480px;max-height:calc(100vh - 110px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
