@@ -337,7 +337,10 @@
     return "Puedo consultar el perfil académico público y los trabajos de estos dos cursos: Desarrollo de Aplicaciones y Algoritmos y Estructura de Datos. Prueba: «¿Qué temas tiene Desarrollo de Aplicaciones?» o «Dame la actividad 2 de Algoritmos, semana 5».";
   }
 
-  // Se completará con la URL pública del servicio de Render después de desplegarlo.\n  const AI_API_URL = "https://RENDER_SERVICE_URL.onrender.com/api/chat";\n\n  async function ask(question) {
+  // Se completará con la URL pública del servicio de Render después de desplegarlo.
+  const AI_API_URL = "https://RENDER_SERVICE_URL.onrender.com/api/chat";
+
+  async function ask(question) {
     const clean = question.trim();
     if (!clean) return;
     addMessage(clean, "user");
