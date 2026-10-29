@@ -5,7 +5,7 @@
   const style = document.createElement("style");
   style.textContent =
     "#portfolioChatWidget{position:fixed;left:0;right:0;bottom:8px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
-    "#portfolioChatToggle{pointer-events:auto;position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;width:120px;height:120px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:portfolioPikachuWalk 28s linear infinite}" +
+    "#portfolioChatToggle{pointer-events:auto;position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;width:120px;height:120px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:portfolioPikachuWalk 60s linear infinite}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
     ".portfolio-pikachu{display:inline-flex;width:116px;height:116px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
     ".portfolio-pikachu img{display:block;width:116px;height:116px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 2px 2px #0002);animation:portfolioPokemonFace 28s linear infinite}" +
