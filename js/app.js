@@ -203,14 +203,14 @@ function showPublicWeek(course, period, week) {
   list.innerHTML = groups.length ? groups.map((group,i)=>`
     <section class="activity-block public-activity">
       <div class="activity-header">
-        <div><span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":group.extra?"TRABAJOS ADICIONALES":`ACTIVIDAD ${group.activityNumber}`}</span><h4>${esc(group.legacy?"Trabajos anteriores":group.extra?"Trabajos adicionales":(workDisplayTitle(group.items[0])||`Actividad ${group.activityNumber}`))}</h4><small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} en esta actividad</small></div>
+        <div><span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":group.extra?"TRABAJOS ADICIONALES":`ACTIVIDAD ${group.activityNumber}`}</span><h4>${esc(group.legacy?"Trabajos anteriores":group.extra?"Trabajos adicionales":(workDisplayTitle(group.items[0])||`Actividad ${group.activityNumber}`))}</h4>${group.items[0]?.descripcion?`<p class="activity-description">${esc(group.items[0].descripcion)}</p>`:""}<small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} en esta actividad</small></div>
         <span class="activity-number">${group.legacy?"↺":group.extra?"＋":group.activityNumber}</span>
       </div>
       ${group.items.map(w=>`<article class="work-row">
         <div class="file-type">${iconType(w.archivo_nombre)}</div>
         <div class="work-info">
           <strong>${esc(w.archivo_nombre||"Archivo")}</strong>
-          <span>${esc(w.descripcion||"Trabajo académico")} · ${fmtDate(w.fecha)}</span>
+          <span>${fmtDate(w.fecha)}</span>
         </div>
         <div class="work-actions">
           ${w.archivo_url
