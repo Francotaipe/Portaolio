@@ -7,14 +7,8 @@
     "#portfolioChatWidget{position:fixed;left:0;right:0;bottom:8px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
     "#portfolioChatToggle{pointer-events:auto;position:absolute;left:10px;bottom:0;display:flex;align-items:center;gap:8px;border:2px solid #d99000;border-radius:18px;padding:7px 12px 8px 7px;background:#fff6bd;color:#4b3200;font-weight:800;box-shadow:0 5px 18px #08274b40;cursor:pointer;animation:portfolioPikachuWalk 18s linear infinite}" +
     "#portfolioChatToggle:hover{animation-play-state:paused;transform:translateY(-3px)}" +
-    ".portfolio-pikachu{position:relative;display:inline-block;width:42px;height:38px;flex:0 0 42px;animation:portfolioPikachuBounce .38s ease-in-out infinite alternate}" +
-    ".portfolio-pikachu .pika-body{position:absolute;left:8px;bottom:1px;width:27px;height:28px;background:#ffdc38;border:2px solid #b77a00;border-radius:48% 48% 42% 42%;box-shadow:inset -4px -2px #f5b91d}" +
-    ".portfolio-pikachu .pika-ear{position:absolute;top:0;width:9px;height:22px;background:#ffdc38;border:2px solid #b77a00;border-radius:90% 20% 50% 20%;z-index:1}" +
-    ".portfolio-pikachu .pika-ear.left{left:8px;transform:rotate(-24deg)}.portfolio-pikachu .pika-ear.right{right:4px;transform:rotate(25deg)}" +
-    ".portfolio-pikachu .pika-ear:after{content:'';position:absolute;top:-1px;left:1px;width:5px;height:7px;background:#29232b;border-radius:4px 4px 0 0}" +
-    ".portfolio-pikachu .pika-eye{position:absolute;top:12px;width:4px;height:6px;background:#27212a;border-radius:50%;z-index:2}.portfolio-pikachu .pika-eye.left{left:14px}.portfolio-pikachu .pika-eye.right{right:6px}" +
-    ".portfolio-pikachu .pika-cheek{position:absolute;top:20px;width:7px;height:6px;background:#ef5b49;border-radius:50%;z-index:2}.portfolio-pikachu .pika-cheek.left{left:8px}.portfolio-pikachu .pika-cheek.right{right:1px}" +
-    ".portfolio-pikachu .pika-mouth{position:absolute;top:20px;left:20px;width:6px;height:4px;border-bottom:2px solid #653b16;border-radius:50%;z-index:2}" +
+    ".portfolio-pikachu{display:inline-flex;width:68px;height:58px;flex:0 0 68px;align-items:center;justify-content:center;overflow:visible}" +
+    ".portfolio-pikachu img{display:block;width:68px;height:58px;object-fit:contain;mix-blend-mode:darken;filter:drop-shadow(0 2px 2px #0003)}" +
     "#portfolioChatWindow{display:none;position:fixed;left:12px;bottom:82px;width:min(360px,calc(100vw - 24px));height:480px;max-height:calc(100vh - 110px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
     "@keyframes portfolioPikachuWalk{0%{left:10px}45%{left:calc(100vw - 175px)}50%{left:calc(100vw - 175px)}95%{left:10px}100%{left:10px}}" +
     "@keyframes portfolioPikachuBounce{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-4px) rotate(3deg)}}" +
@@ -47,7 +41,7 @@
     '<button class="portfolio-chat-quick" type="button" data-question="¿Cómo entro al área privada?">Área privada</button></div>' +
     '<form id="portfolioChatForm"><input id="portfolioChatInput" type="text" maxlength="300" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" autocomplete="off">' +
     '<button id="portfolioChatSend" type="submit">Enviar</button></form></section>' +
-    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span class="portfolio-pikachu" aria-hidden="true"><span class="pika-ear left"></span><span class="pika-ear right"></span><span class="pika-body"><span class="pika-eye left"></span><span class="pika-eye right"></span><span class="pika-cheek left"></span><span class="pika-cheek right"></span><span class="pika-mouth"></span></span></span><span>¡Pikachu!<br><small>¿Qué deseas consultar?</small></span></button>';
+    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span class="portfolio-pikachu" aria-hidden="true"><img src="https://clipart-library.com/data_images/428676.gif" alt="" loading="eager"></span><span>¡Pikachu!<br><small>¿Qué deseas consultar?</small></span></button>';
   document.body.appendChild(widget);
 
   const win = document.getElementById("portfolioChatWindow");
