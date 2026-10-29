@@ -184,7 +184,7 @@ function renderSelectedWeek(){
         <div>
           <span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":`ACTIVIDAD ${group.activityNumber}`}</span>
           <h4>${group.legacy?"Trabajos anteriores":`Actividad ${group.activityNumber}`}</h4>
-          <small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} agrupados</small>
+          <small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} agrupados</small><div style="margin-top:8px"><button type="button" class="btn-edit-description" data-group-index="${i}">Editar descripción de la actividad</button></div>
         </div>
         <span class="activity-number">${group.activityNumber||i+1}</span>
       </div>
@@ -202,8 +202,30 @@ function renderSelectedWeek(){
       </article>`).join("")}
     </section>`).join(""):`<div class="empty-week">No hay trabajos registrados en esta semana. Usa el formulario de arriba para subir uno.</div>`;
 
+  $("adminWeekList").querySelectorAll(".btn-edit-description").forEach(b=>b.addEventListener("click",()=>editActivityDescription(groups[Number(b.dataset.groupIndex)])));
   $("adminWeekList").querySelectorAll(".btn-edit").forEach(b=>b.addEventListener("click",()=>openEditWork(b.dataset.id)));
   $("adminWeekList").querySelectorAll(".btn-delete").forEach(b=>b.addEventListener("click",()=>deleteWork(b.dataset.id,decodeURIComponent(b.dataset.url))));
+}
+
+async function editActivityDescription(group){
+  if(!group||!group.items?.length)return;
+  const current=group.items.find(w=>String(w.descripcion||"").trim())?.descripcion||"";
+  const description=prompt("Escribe la descripción que quieres mostrar para esta actividad. Se aplicará a todos los archivos de esta misma actividad:",current);
+  if(description===null)return;
+  const cleanDescription=description.trim();
+  if(!confirm("¿Guardar esta descripción en los "+group.items.length+" archivo(s) de esta actividad?"))return;
+  for(const work of group.items){
+    const {error}=await supabaseClient.from("trabajos").update({descripcion:cleanDescription}).eq("id",work.id).eq("usuario_id",user.id);
+    if(error){
+      alert("No se pudo actualizar la descripción de todos los archivos: "+error.message+"\nSe actualizaron los archivos anteriores a este error.");
+      await loadWorks();
+      if(selectedCourse&&selectedPeriod&&selectedWeek)showSelectedWeek();
+      return;
+    }
+  }
+  await loadWorks();
+  if(selectedCourse&&selectedPeriod&&selectedWeek)showSelectedWeek();
+  alert("Descripción de la actividad actualizada correctamente.");
 }
 
 async function loadWorks(){
