@@ -5,12 +5,15 @@
   const style = document.createElement("style");
   style.textContent =
     "#portfolioChatWidget{position:fixed;left:0;right:0;bottom:8px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
-    "#portfolioChatToggle{pointer-events:auto;position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;width:100px;height:100px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:portfolioPikachuWalk 16s linear infinite;transform-origin:center center}" +
+    "#portfolioChatToggle{pointer-events:auto;position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;width:120px;height:120px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:portfolioPikachuWalk 28s linear infinite;transform-origin:center center}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
-    ".portfolio-pikachu{display:inline-flex;width:96px;height:96px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
-    ".portfolio-pikachu img{display:block;width:96px;height:96px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 2px #0002)}" +
+    ".portfolio-pikachu{display:inline-flex;width:116px;height:116px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
+    ".portfolio-pikachu img{display:block;width:116px;height:116px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 2px #0002)}" +
+    "#portfolioPikachuBubble{position:absolute;left:50%;bottom:105px;transform:translateX(-50%);width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
+    "#portfolioPikachuBubble:after{content:\"\";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #d6e6f6;border-bottom:1px solid #d6e6f6;transform:translateX(-50%) rotate(45deg)}" +
+    "@keyframes portfolioBubbleFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}" +
     "#portfolioChatWindow{display:none;position:fixed;left:12px;bottom:82px;width:min(360px,calc(100vw - 24px));height:480px;max-height:calc(100vh - 110px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
-    "@keyframes portfolioPikachuWalk{0%{left:0;transform:scaleX(1)}46%{left:calc(100vw - 100px);transform:scaleX(1)}50%{left:calc(100vw - 100px);transform:scaleX(-1)}96%{left:0;transform:scaleX(-1)}100%{left:0;transform:scaleX(1)}}" +
+    "@keyframes portfolioPikachuWalk{0%{left:0;transform:scaleX(1)}46%{left:calc(100vw - 120px);transform:scaleX(1)}50%{left:calc(100vw - 120px);transform:scaleX(-1)}96%{left:0;transform:scaleX(-1)}100%{left:0;transform:scaleX(1)}}" +
     "@keyframes portfolioPikachuBounce{from{transform:translateY(0)}to{transform:translateY(-5px)}}" +
     "@media(prefers-reduced-motion:reduce){#portfolioChatToggle,.portfolio-pikachu{animation:none}}" +
     "#portfolioChatWindow.open{display:flex}" +
@@ -41,7 +44,7 @@
     '<button class="portfolio-chat-quick" type="button" data-question="¿Cómo entro al área privada?">Área privada</button></div>' +
     '<form id="portfolioChatForm"><input id="portfolioChatInput" type="text" maxlength="300" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" autocomplete="off">' +
     '<button id="portfolioChatSend" type="submit">Enviar</button></form></section>' +
-    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span class="portfolio-pikachu" aria-hidden="true"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/25.gif" alt="" loading="eager"></span></button>';
+    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/25.gif" alt="" loading="eager"></span></button>';
   document.body.appendChild(widget);
 
   const win = document.getElementById("portfolioChatWindow");
@@ -233,6 +236,20 @@
       return "Para acceder al área privada, usa «Iniciar sesión» en la parte superior. Desde allí puedes administrar los trabajos. No compartas tu contraseña en este chat.";
     if (/(dato|contacto|correo|email|telefono|celular)/.test(q))
       return "La información publicada en la sección «Mis datos» es: Franco Roy Taipe Quispe, Ingeniería de Sistemas y Computación, IV ciclo, UPLA.";
+    if (/(que es un algoritmo|que es algoritmo|define algoritmo|definicion de algoritmo|explica.*algoritmo)/.test(q))
+      return "¡Claro! ⚡ Un algoritmo es una secuencia finita, ordenada y precisa de pasos para resolver un problema o realizar una tarea. Debe indicar qué hacer, en qué orden y cuándo terminar.\n\nEjemplo para sumar dos números:\n1. Leer A y B.\n2. Calcular S = A + B.\n3. Mostrar S.\n\nEn programación, un algoritmo puede representarse con pseudocódigo, un diagrama de flujo o código. Sus características principales son instrucciones claras, resultado y fin en un número finito de pasos.";
+    if (/(que es una estructura de datos|que son las estructuras de datos|estructura de datos|estructuras de datos)/.test(q))
+      return "Una estructura de datos es una forma de organizar y almacenar información para usarla eficientemente. Ejemplos:\n• Arreglos: elementos accesibles por índice.\n• Matrices: datos en filas y columnas.\n• Listas: colección de elementos que puede crecer o reducirse.\n• Pilas: el último en entrar es el primero en salir (LIFO).\n• Colas: el primero en entrar es el primero en salir (FIFO). La elección depende de las operaciones que se necesiten.";
+    if (/(pseudocodigo|diagrama de flujo)/.test(q))
+      return "El pseudocódigo describe los pasos de un algoritmo con instrucciones parecidas al lenguaje humano, sin depender de un lenguaje específico. Un diagrama de flujo representa los pasos con símbolos y flechas: óvalo para inicio/fin, rectángulo para proceso, paralelogramo para entrada/salida y rombo para decisión.";
+    if (/(arreglo|arreglos|array|matriz|matrices)/.test(q))
+      return "Un arreglo almacena varios elementos bajo un mismo nombre y permite acceder a ellos mediante índices. Una matriz organiza elementos en filas y columnas. Operaciones comunes: recorrer, buscar, actualizar, sumar elementos y encontrar máximos o mínimos. En Java: int[] numeros = {3, 5, 8};";
+    if (/(pila|pilas|cola|colas)/.test(q))
+      return "Las pilas y colas son estructuras lineales. Una pila sigue LIFO: el último en entrar sale primero; sus operaciones típicas son push y pop. Una cola sigue FIFO: el primero en entrar sale primero; sus operaciones típicas son encolar y desencolar. Las pilas pueden servir para deshacer acciones y las colas para gestionar turnos.";
+    if (/(condicional|condicionales|if else|ciclo|ciclos|bucle|bucles|for|while)/.test(q))
+      return "Las estructuras de control determinan cómo avanza un algoritmo: la secuencia ejecuta instrucciones en orden; la selección (if/else, switch) elige entre alternativas; y la repetición (for, while, do-while) ejecuta instrucciones varias veces mientras se cumpla una condición.";
+    if (/(metodo|metodos|funcion|funciones|poo|programacion orientada a objetos|encapsulamiento|herencia|polimorfismo|abstraccion|interfaz)/.test(q) && (course === "desarrollo" || /poo|programacion orientada a objetos|encapsulamiento|herencia|polimorfismo|abstraccion|interfaz/.test(q)))
+      return "En Desarrollo de Aplicaciones, la programación orientada a objetos organiza el programa mediante clases y objetos. Una clase define atributos y métodos; un objeto es una instancia. Encapsulamiento protege el estado interno, herencia permite especializar una clase, polimorfismo permite distintas implementaciones de una interfaz común y abstracción destaca lo esencial. Los métodos agrupan acciones reutilizables y las interfaces definen operaciones que una clase debe implementar.";
     if (/(gracias|muchas gracias)/.test(q)) return "¡Pika-pika! ⚡ ¡Con gusto! Pregúntame por tu perfil, uno de los dos cursos o por una actividad/trabajo publicado.";
     return "Puedo consultar el perfil académico público y los trabajos de estos dos cursos: Desarrollo de Aplicaciones y Algoritmos y Estructura de Datos. Prueba: «¿Qué temas tiene Desarrollo de Aplicaciones?» o «Dame la actividad 2 de Algoritmos, semana 5».";
   }
