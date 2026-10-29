@@ -11,6 +11,7 @@ const iconType = name => {
 };
 const fmtDate = value => value ? new Date(value+"T00:00:00").toLocaleDateString("es-PE",{day:"2-digit",month:"short",year:"numeric"}) : "";
 const courseName = key => key==="desarrollo" ? "Desarrollo de Aplicaciones" : "Algoritmos y Estructura de Datos";
+const globalWeekNumber = (period, week) => ((Number(period) - 1) * 4) + Number(week);
 
 // Compatibilidad con trabajos antiguos: no se modifican sus datos, solo se normalizan
 // para poder mostrarlos aunque el nombre del curso haya cambiado ligeramente.
@@ -169,7 +170,7 @@ function renderCourseExplorer(course) {
       btn.className = "week-select-button";
       btn.dataset.period=p;
       btn.dataset.week=w;
-      btn.innerHTML = `<strong>Semana ${w}</strong><span>${n} ${n===1?"actividad":"actividades"}</span>`;
+      btn.innerHTML = `<strong>Semana ${globalWeekNumber(p,w)}</strong><span>${n} ${n===1?"actividad":"actividades"}</span>`;
       row.appendChild(btn);
       btn.addEventListener("click", ()=>{
         selectedPeriod=p;
@@ -194,7 +195,7 @@ function showPublicWeek(course, period, week) {
   const groups = groupByActivity(rows,course,week);
   $("publicNoWeek").classList.add("hidden");
   $("publicWeekDetail").classList.remove("hidden");
-  $("publicWeekTitle").textContent = `${courseName(course)} · Período ${period} · Semana ${week}`;
+  $("publicWeekTitle").textContent = `${courseName(course)} · Período ${period} · Semana ${globalWeekNumber(period,week)}`;
   $("publicWeekSub").textContent = "Las actividades se separan por su actividad guardada. Los trabajos antiguos se muestran sin modificar.";
   $("publicWeekCount").textContent = `${groups.length} ${groups.length===1?"actividad":"actividades"}`;
 
