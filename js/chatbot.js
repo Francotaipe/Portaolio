@@ -197,7 +197,7 @@
     // Si el usuario no indica el curso, buscar la actividad en ambos cursos.
     // Ejemplo: "dame la actividad 2 de la semana 7".
     if (!course && /(trabajo|trabajos|actividad|actividades|archivo|documento|dame|mostrar|buscar|descargar|enlace|pdf|word)/.test(q) &&
-        (getGlobalWeekFromQuestion(q) !== null || getPeriodFromQuestion(q) !== null || /actividad\\s*(?:n(?:ro|umero)?\\.?\\s*)?#?\\s*\\d+/.test(q))) {
+        (getGlobalWeekFromQuestion(q) !== null || getPeriodFromQuestion(q) !== null || /actividad\s*(?:n(?:ro|umero)?\.?\s*)?#?\s*\d+/.test(q))) {
       const result = await loadPublicWorks();
       if (result.error) return result.error;
       let rows = [...result.data];
@@ -205,7 +205,7 @@
       const periodAsked = getPeriodFromQuestion(q);
       if (globalWeek !== null) {
         const parsed = localWeek(globalWeek);
-        const m = q.match(/(?:semana|sem)\\s*(?:n(?:ro|umero)?\\.?\\s*)?(\\d{1,2})/);
+        const m = q.match(/(?:semana|sem)\s*(?:n(?:ro|umero)?\.?\s*)?(\d{1,2})/);
         const statedWeek = Number(m?.[1]);
         const target = periodAsked && statedWeek <= 4
           ? { period: periodAsked, week: statedWeek, global: (periodAsked - 1) * 4 + statedWeek }
@@ -214,7 +214,7 @@
       } else if (periodAsked) {
         rows = rows.filter(w => Number(w.periodo) === periodAsked);
       }
-      const activityMatch = q.match(/actividad\\s*(?:n(?:ro|umero)?\\.?\\s*)?#?\\s*(\\d+)/);
+      const activityMatch = q.match(/actividad\s*(?:n(?:ro|umero)?\.?\s*)?#?\s*(\d+)/);
       if (activityMatch) {
         const wanted = Number(activityMatch[1]);
         rows = rows.filter(w =>
@@ -228,9 +228,9 @@
       }
       const weekLabel = globalWeek !== null ? " · Semana " + globalWeek : "";
       const periodLabel = periodAsked ? " · Período " + periodAsked : "";
-      return "Encontré " + rows.length + " trabajo(s) coincidente(s)" + weekLabel + periodLabel + " en tus cursos:\\n\\n" +
-        rows.slice(0, 12).map((w, i) => courseLabel(normalizeText(w.curso).includes("desarrollo") ? "desarrollo" : "algoritmos") + "\\n" + describeWork(w, i)).join("\\n\\n") +
-        (rows.length > 12 ? "\\n\\nMostrando los primeros 12 resultados." : "");
+      return "Encontré " + rows.length + " trabajo(s) coincidente(s)" + weekLabel + periodLabel + " en tus cursos:\n\n" +
+        rows.slice(0, 12).map((w, i) => courseLabel(normalizeText(w.curso).includes("desarrollo") ? "desarrollo" : "algoritmos") + "\n" + describeWork(w, i)).join("\n\n") +
+        (rows.length > 12 ? "\n\nMostrando los primeros 12 resultados." : "");
     }
     if (course && /(trabajo|trabajos|actividad|actividades|archivo|documento|dame|mostrar|buscar|descargar|enlace|pdf|word)/.test(q)) {
       const result = await loadPublicWorks();
