@@ -44,8 +44,29 @@
     '<button class="portfolio-chat-quick" type="button" data-question="¿Cómo entro al área privada?">Área privada</button></div>' +
     '<form id="portfolioChatForm"><input id="portfolioChatInput" type="text" maxlength="300" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" autocomplete="off">' +
     '<button id="portfolioChatSend" type="submit">Enviar</button></form></section>' +
-    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img src="https://media.giphy.com/media/slVWEctHZKvWU/giphy.gif" alt="" loading="eager"></span></button>';
+    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img id="portfolioPokemonImage" src="" alt="" loading="eager"></span></button>';
   document.body.appendChild(widget);
+
+  // Alternar el Pokémon cada vez que se carga la página: Pikachu, Bulbasaur, Charmander.
+  const pokemonRotations = [
+    { name: "Pikachu", image: "https://media.tenor.com/3IACtMvxwdsAAAAi/pikachu-happy.gif" },
+    { name: "Bulbasaur", image: "https://media2.giphy.com/media/v1.Y2lkPTZjMDliOTUyM29rc2d3YWlyZm1wZXlmMjF1Ynoxa2V4YWk1YjljcnU3b240cjB2dSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/aTgBhsAp8kwdLkOC6z/source.gif" },
+    { name: "Charmander", image: "https://media4.giphy.com/media/v1.Y2lkPTZjMDliOTUyZ2xvNnluZDJkN3Q1aWJ0a3Bzdm0yZ20ycHJ5Z2hwdmo0cDVkdHhveSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/6xr4bW2csldWKmJkjO/giphy.gif" }
+  ];
+  const pokemonImage = document.getElementById("portfolioPokemonImage");
+  let pokemonIndex = 0;
+  try {
+    const savedNext = Number(window.localStorage.getItem("portfolioPokemonNextIndex"));
+    if (Number.isInteger(savedNext) && savedNext >= 0 && savedNext < pokemonRotations.length) {
+      pokemonIndex = savedNext;
+    }
+    window.localStorage.setItem("portfolioPokemonNextIndex", String((pokemonIndex + 1) % pokemonRotations.length));
+  } catch (_error) {
+    // Si el almacenamiento está bloqueado, Pikachu sigue funcionando como opción predeterminada.
+  }
+  pokemonImage.src = pokemonRotations[pokemonIndex].image;
+  pokemonImage.alt = pokemonRotations[pokemonIndex].name;
+  document.getElementById("portfolioChatToggle").setAttribute("aria-label", pokemonRotations[pokemonIndex].name + ", abre el asistente virtual");
 
   const win = document.getElementById("portfolioChatWindow");
   const toggle = document.getElementById("portfolioChatToggle");
