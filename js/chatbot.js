@@ -44,7 +44,7 @@
     '<button class="portfolio-chat-quick" type="button" data-question="¿Cómo entro al área privada?">Área privada</button></div>' +
     '<form id="portfolioChatForm"><input id="portfolioChatInput" type="text" maxlength="300" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" autocomplete="off">' +
     '<button id="portfolioChatSend" type="submit">Enviar</button></form></section>' +
-    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img src="https://media.tenor.com/uUNcnHwYJQEAAAAi/running-pikachu-transparent-snivee.gif" alt="" loading="eager"></span></button>';
+    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img src="https://media.giphy.com/media/slVWEctHZKvWU/giphy.gif" alt="" loading="eager"></span></button>';
   document.body.appendChild(widget);
 
   const win = document.getElementById("portfolioChatWindow");
