@@ -225,62 +225,54 @@ async function loadWorks(){
 async function uploadWork(e){
   e.preventDefault();
   if(!selectedCourse||!selectedPeriod||!selectedWeek){setMsg("Selecciona curso, período y semana primero.","error");return;}
-  const form=e.currentTarget,file=$("archivo").files[0];
-  if(!file){setMsg("Selecciona un archivo.","error");return;}
+  const form=e.currentTarget,files=Array.from($("archivo").files||[]);
+  if(!files.length){setMsg("Selecciona al menos un archivo.","error");return;}
   const activity=Number($("actividad").value);
   const allowedActivities=activitiesForWeek(selectedCourse,selectedWeek);
   const title=$("titulo").value.trim();
   if(!allowedActivities.includes(activity)){setMsg("Selecciona una actividad válida para esta semana.","error");return;}
   if(!title){setMsg("Escribe el nombre del trabajo.","error");return;}
-  const btn=form.querySelector("button[type=submit]");
+  const btn=form.querySelector('button[type="submit"]');
   btn.disabled=true;
-  setMsg("Subiendo trabajo...");
   const description=$("descripcion").value.trim();
   const date=$("fecha").value||new Date().toISOString().slice(0,10);
-  const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-  const path=`${user.id}/${Date.now()}_${safe}`;
-
-  const {error:upError}=await supabaseClient.storage.from("trabajos").upload(path,file,{cacheControl:"3600",upsert:false});
-  if(upError){btn.disabled=false;setMsg("No se pudo subir: "+upError.message,"error");return;}
-
-  const {data:urlData}=supabaseClient.storage.from("trabajos").getPublicUrl(path);
-
-  // La columna actividad es la forma principal de separar las entregas.
-  // Si el proyecto Supabase todavía no tiene esa columna (o su caché de esquema
-  // aún no la reconoce), usamos una compatibilidad segura: guardamos el número
-  // de actividad dentro del título. La interfaz lo oculta al mostrarlo y así
-  // las actividades siguen quedando separadas sin tocar trabajos anteriores.
-  let rowError=null;
-  const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,actividad,titulo,descripcion:description,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name};
-  if(activityColumnAvailable){
-    rowError=(await supabaseClient.from("trabajos").insert(payload)).error;
-  }
-  if(rowError || !activityColumnAvailable){
-    if(rowError && !/actividad|column|schema cache/i.test(rowError.message||"")){
-      await supabaseClient.storage.from("trabajos").remove([path]);
-      btn.disabled=false;
-      setMsg("No se pudo guardar el trabajo: "+rowError.message,"error");
-      return;
+  let uploadedPaths=[];
+  let savedCount=0;
+  try{
+    for(let i=0;i<files.length;i++){
+      const file=files[i];
+      setMsg(`Subiendo archivo ${i+1} de ${files.length}: ${file.name}`);
+      const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+      const path=`${user.id}/${Date.now()}_${i}_${safe}`;
+      const {error:upError}=await supabaseClient.storage.from("trabajos").upload(path,file,{cacheControl:"3600",upsert:false});
+      if(upError)throw new Error("No se pudo subir «"+file.name+"»: "+upError.message);
+      uploadedPaths.push(path);
+      const {data:urlData}=supabaseClient.storage.from("trabajos").getPublicUrl(path);
+      const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,actividad,titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name};
+      let rowError=null;
+      if(activityColumnAvailable)rowError=(await supabaseClient.from("trabajos").insert(payload)).error;
+      if(rowError||!activityColumnAvailable){
+        if(rowError&&!/actividad|column|schema cache/i.test(rowError.message||""))throw new Error("No se pudo guardar «"+file.name+"»: "+rowError.message);
+        const legacyPayload={...payload};
+        delete legacyPayload.actividad;
+        legacyPayload.titulo=`Actividad ${activity} - ${title}`;
+        const legacyResult=await supabaseClient.from("trabajos").insert(legacyPayload);
+        rowError=legacyResult.error;
+        activityColumnAvailable=false;
+      }
+      if(rowError)throw new Error("No se pudo guardar «"+file.name+"»: "+rowError.message);
+      savedCount++;
     }
-    const legacyPayload={...payload};
-    delete legacyPayload.actividad;
-    legacyPayload.titulo=`Actividad ${activity} - ${title}`;
-    const legacyResult=await supabaseClient.from("trabajos").insert(legacyPayload);
-    rowError=legacyResult.error;
-    activityColumnAvailable=false;
-  }
-  if(rowError){
-    await supabaseClient.storage.from("trabajos").remove([path]);
+    form.reset();
+    $("fecha").value=new Date().toISOString().slice(0,10);
+    setMsg(`¡Listo! Se guardaron ${savedCount} archivo(s) en la Actividad ${activity}.`,"success");
+    await loadWorks();
+  }catch(error){
+    setMsg(`Se guardaron ${savedCount} de ${files.length} archivo(s). ${error.message} Puedes volver a intentar con los archivos pendientes.`,"error");
+    await loadWorks();
+  }finally{
     btn.disabled=false;
-    setMsg("No se pudo guardar el trabajo: "+rowError.message,"error");
-    return;
   }
-
-  form.reset();
-  $("fecha").value=new Date().toISOString().slice(0,10);
-  btn.disabled=false;
-  setMsg("Trabajo guardado correctamente.","success");
-  await loadWorks();
 }
 
 function openEditWork(id){
