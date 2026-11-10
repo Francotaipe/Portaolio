@@ -254,7 +254,7 @@ async function uploadWork(e){
   const nombreClase=$("nombreClase").value.trim();
   const optionalLink=$("enlaceUrl").value.trim();
   if(!nombreClase){setMsg("Escribe el nombre de la clase de esta semana antes de subir las actividades.","error");return;}
-  if(optionalLink&&!/^https?:\\/\\//i.test(optionalLink)){setMsg("El enlace debe comenzar con https:// o http://.","error");return;}
+  if(optionalLink&&!/^https?:\/\//i.test(optionalLink)){setMsg("El enlace debe comenzar con https:// o http://.","error");return;}
   const date=$("fecha").value||new Date().toISOString().slice(0,10);
   let uploadedPaths=[];
   let savedCount=0;
