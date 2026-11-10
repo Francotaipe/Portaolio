@@ -223,6 +223,7 @@ async function editActivityDescription(group){
 }
 
 async function loadWorks(){
+  const keepCourse=selectedCourse,keepPeriod=selectedPeriod,keepWeek=selectedWeek;
   let result=await supabaseClient.from("trabajos").select("id,curso,periodo,semana,nombre_clase,actividad,titulo,descripcion,fecha,archivo_url,archivo_nombre,enlace_url,creado_en").eq("usuario_id",user.id).order("fecha",{ascending:false}).order("creado_en",{ascending:false});
   activityColumnAvailable=!result.error;
   if(result.error){
@@ -234,8 +235,20 @@ async function loadWorks(){
   }
   works=(result.data||[]).map(normalizeWorkRecord);
   $("totalAdmin").textContent=works.length;
-  if(selectedCourse)renderCourseExplorer(selectedCourse);
-  if(selectedCourse&&selectedPeriod&&selectedWeek)showSelectedWeek();
+  if(keepCourse){
+    selectedCourse=keepCourse;selectedPeriod=keepPeriod;selectedWeek=keepWeek;
+    renderCourseExplorer(keepCourse);
+    if(keepPeriod&&keepWeek){
+      const targetPeriod=$("privateCourseExplorer").querySelectorAll(".period-explorer-card")[keepPeriod-1];
+      if(targetPeriod){
+        targetPeriod.querySelector(".period-select-button")?.classList.add("active");
+        const targetWeek=targetPeriod.querySelectorAll(".week-select-button")[keepWeek-1];
+        targetWeek?.classList.add("active");
+      }
+      selectedPeriod=keepPeriod;selectedWeek=keepWeek;
+      showSelectedWeek();
+    }
+  }
 }
 
 async function uploadWork(e){
