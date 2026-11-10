@@ -94,11 +94,6 @@ function activityNumber(w){
 }
 
 function activitiesForWeek(course,week){
-  const w=Number(week);
-  if(course==="algoritmos"){
-    if(w===1)return [1,2];
-    if(w===2)return [1];
-  }
   return [1,2,3,4,5];
 }
 
@@ -196,7 +191,7 @@ function showPublicWeek(course, period, week) {
   $("publicNoWeek").classList.add("hidden");
   $("publicWeekDetail").classList.remove("hidden");
   $("publicWeekTitle").textContent = `${courseName(course)} · Período ${period} · Semana ${globalWeekNumber(period,week)}`;
-  $("publicWeekSub").textContent = "Las actividades se separan por su actividad guardada. Los trabajos antiguos se muestran sin modificar.";
+  $("publicWeekSub").textContent = rows.find(w=>w.nombre_clase)?.nombre_clase ? "Clase de la semana: " + rows.find(w=>w.nombre_clase).nombre_clase : "Las actividades se separan por su actividad guardada. Los trabajos antiguos se muestran sin modificar.";
   $("publicWeekCount").textContent = `${groups.length} ${groups.length===1?"actividad":"actividades"}`;
 
   const list = $("publicWorkList");
@@ -217,6 +212,7 @@ function showPublicWeek(course, period, week) {
             ? `<a class="btn-view" href="${esc(w.archivo_url)}" target="_blank" rel="noopener">Ver</a>
                <a class="btn-download" href="${esc(w.archivo_url)}" target="_blank" rel="noopener" download>Descargar</a>`
             : `<span class="no-file">Sin archivo</span>`}
+          ${w.enlace_url ? `<a class="btn-view" href="${esc(w.enlace_url)}" target="_blank" rel="noopener">Abrir enlace</a>` : ""}
         </div>
       </article>`).join("")}
     </section>
@@ -243,7 +239,7 @@ async function load() {
   await setupSessionUI();
 
   let result=await supabaseClient.from("trabajos")
-    .select("id,curso,periodo,semana,actividad,titulo,descripcion,fecha,archivo_url,archivo_nombre,creado_en")
+    .select("id,curso,periodo,semana,nombre_clase,actividad,titulo,descripcion,fecha,archivo_url,archivo_nombre,enlace_url,creado_en")
     .order("fecha",{ascending:false})
     .order("creado_en",{ascending:false});
   if(result.error && /actividad|column/i.test(result.error.message||"")){
