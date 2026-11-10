@@ -80,6 +80,14 @@ function workDisplayTitle(w){
   return fileBaseName(w?.archivo_nombre)||"Trabajo";
 }
 
+function activityDescription(group){
+  const candidate=group?.items?.find(w=>!isBadDisplayTitle(normalizeStoredText(w?.descripcion)));
+  const stored=normalizeStoredText(candidate?.descripcion).trim();
+  if(!isBadDisplayTitle(stored))return stored;
+  const title=workDisplayTitle(group?.items?.[0]||{});
+  return title&&!isBadDisplayTitle(title) ? "Descripción del proyecto: "+title+"." : "Descripción del proyecto no registrada.";
+}
+
 function extractActivityNumber(value){
   const text=normalizeStoredText(value);
   const m=text.match(/\bactividad\s*#?\s*(\d+)\b/i);
@@ -191,14 +199,15 @@ function showPublicWeek(course, period, week) {
   $("publicNoWeek").classList.add("hidden");
   $("publicWeekDetail").classList.remove("hidden");
   $("publicWeekTitle").textContent = `${courseName(course)} · Período ${period} · Semana ${globalWeekNumber(period,week)}`;
-  $("publicWeekSub").textContent = rows.find(w=>w.nombre_clase)?.nombre_clase ? "Clase de la semana: " + rows.find(w=>w.nombre_clase).nombre_clase : "Las actividades se separan por su actividad guardada. Los trabajos antiguos se muestran sin modificar.";
+  const className=rows.find(w=>String(w.nombre_clase||"").trim())?.nombre_clase;
+  $("publicWeekSub").textContent = className ? "CLASE DE LA SEMANA: " + className : "Las actividades se separan por su actividad guardada.";
   $("publicWeekCount").textContent = `${groups.length} ${groups.length===1?"actividad":"actividades"}`;
 
   const list = $("publicWorkList");
   list.innerHTML = groups.length ? groups.map((group,i)=>`
     <section class="activity-block public-activity">
       <div class="activity-header">
-        <div><span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":group.extra?"TRABAJOS ADICIONALES":`ACTIVIDAD ${group.activityNumber}`}</span><h4>${esc(group.legacy?"Trabajos anteriores":group.extra?"Trabajos adicionales":(workDisplayTitle(group.items[0])||`Actividad ${group.activityNumber}`))}</h4>${group.items[0]?.descripcion?`<p class="activity-description">${esc(group.items[0].descripcion)}</p>`:""}<small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} en esta actividad</small></div>
+        <div><span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":group.extra?"TRABAJOS ADICIONALES":`ACTIVIDAD ${group.activityNumber}`}</span><h4>${esc(group.legacy?"Trabajos anteriores":group.extra?"Trabajos adicionales":(workDisplayTitle(group.items[0])||`Actividad ${group.activityNumber}`))}</h4>${group.items.length?`<p class="activity-description">${esc(activityDescription(group))}</p>`:""}<small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} en esta actividad</small></div>
         <span class="activity-number">${group.legacy?"↺":group.extra?"＋":group.activityNumber}</span>
       </div>
       ${group.items.map(w=>`<article class="work-row">
