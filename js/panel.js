@@ -281,7 +281,7 @@ async function uploadWork(e){
       if(upError)throw new Error("No se pudo subir «"+file.name+"»: "+upError.message);
       uploadedPaths.push(path);
       const {data:urlData}=supabaseClient.storage.from("trabajos").getPublicUrl(path);
-      const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,nombre_clase:nombreClase,actividad,titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name,enlace_url:optionalLink};
+      const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,nombre_clase:nombreClase,actividad:String(activity),titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name,enlace_url:optionalLink};
       let rowError=null;
       let linkNotSaved=false;
       let classNameNotSaved=false;
@@ -382,7 +382,7 @@ async function saveEditWork(e){
   em.textContent="Guardando cambios...";
   em.className="msg";
   let error=null;
-  const updatePayload={curso:course,periodo:period,semana:week,actividad,titulo:name,fecha,descripcion};
+  const updatePayload={curso:course,periodo:period,semana:week,actividad:String(activity),titulo:name,fecha,descripcion};
   if(activityColumnAvailable){
     error=(await supabaseClient.from("trabajos").update(updatePayload).eq("id",id).eq("usuario_id",user.id)).error;
   }
