@@ -54,7 +54,10 @@
       '<p class="theme-switcher-note">Tu elección se conservará al cambiar de página.</p>' +
     '</section>';
 
-  host.appendChild(wrapper);
+  // Mantiene el acceso (Iniciar sesión / Cerrar sesión) al extremo derecho.
+  // El selector queda antes de los botones de acción y no se superpone con ellos.
+  if (headerActions && host.firstChild) host.insertBefore(wrapper, host.firstChild);
+  else host.appendChild(wrapper);
 
   const toggle = wrapper.querySelector("#themeSwitcherToggle");
   const panel = wrapper.querySelector("#themeSwitcherPanel");
