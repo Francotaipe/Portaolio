@@ -441,11 +441,20 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("editModal").cla
 $("logout").addEventListener("click",async()=>{await supabaseClient.auth.signOut();location.href="index.html"});
 
 (async()=>{
-  const {data}=await supabaseClient.auth.getUser();
-  if(!data.user){location.href="login.html";return;}
-  user=data.user;
-  const name=user.user_metadata?.nombre||"Franco Taipe Quispe";
-  $("userName").textContent=name;
-  $("userNameHero").textContent=name.split(" ")[0];
-  await loadWorks();
+  try{
+    if(!supabaseClient){location.replace("login.html");return;}
+    const {data,error}=await supabaseClient.auth.getUser();
+    if(error||!data.user){location.replace("login.html");return;}
+    user=data.user;
+    supabaseClient.auth.onAuthStateChange((event)=>{
+      if(event==="SIGNED_OUT")location.replace("login.html");
+    });
+    const name=user.user_metadata?.nombre||"Franco Taipe Quispe";
+    $("userName").textContent=name;
+    $("userNameHero").textContent=name.split(" ")[0];
+    await loadWorks();
+  }catch(error){
+    console.error("No se pudo validar la sesión:",error);
+    location.replace("login.html");
+  }
 })();
