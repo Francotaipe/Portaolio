@@ -22,10 +22,19 @@
   const root = document.documentElement;
   root.dataset.neonTheme = current;
 
-  const host = document.querySelector(".top-actions") || document.body;
+  const host = document.body;
   const wrapper = document.createElement("div");
   wrapper.id = "portfolioThemeSwitcher";
-  wrapper.className = "theme-switcher" + (host === document.body ? " theme-switcher-floating" : "");
+  wrapper.className = "theme-switcher theme-switcher-floating";
+  // Ubicación flotante independiente del encabezado para que siempre sea visible.
+  wrapper.style.setProperty("position","fixed","important");
+  wrapper.style.setProperty("top","16px","important");
+  wrapper.style.setProperty("right","16px","important");
+  wrapper.style.setProperty("z-index","2147483000","important");
+  wrapper.style.setProperty("display","block","important");
+  wrapper.style.setProperty("visibility","visible","important");
+  wrapper.style.setProperty("opacity","1","important");
+  wrapper.style.setProperty("pointer-events","auto","important");
 
   wrapper.innerHTML =
     '<button id="themeSwitcherToggle" class="theme-switcher-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="themeSwitcherPanel">' +
