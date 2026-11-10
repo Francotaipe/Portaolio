@@ -70,15 +70,8 @@ function activityNumber(w){
   return fromTitle&&fromTitle>=1&&fromTitle<=5?fromTitle:null;
 }
 
-// Reglas de actividades para la interfaz de carga.
-// Algoritmos: Semana 1 = 2 actividades; Semana 2 = 1 actividad; Semana 3+ = hasta 5.
-// Desarrollo: hasta 5 actividades por semana.
+// Todas las semanas de ambos cursos permiten registrar cinco actividades.
 function activitiesForWeek(course,week){
-  const w=Number(week);
-  if(course==="algoritmos"){
-    if(w===1)return [1,2];
-    if(w===2)return [1];
-  }
   return [1,2,3,4,5];
 }
 
@@ -195,7 +188,8 @@ function renderSelectedWeek(){
           <span>${esc(normalizeStoredText(w.descripcion)||"Trabajo académico")} · ${fmtDate(w.fecha)}</span>
         </div>
         <div class="admin-actions">
-          ${w.archivo_url?`<a class="btn-view" href="${esc(w.archivo_url)}" target="_blank" rel="noopener">Ver</a>`:""}
+          ${w.archivo_url?`<a class="btn-view" href="${esc(w.archivo_url)}" target="_blank" rel="noopener">Ver archivo</a>`:""}
+          ${w.enlace_url?`<a class="btn-view" href="${esc(w.enlace_url)}" target="_blank" rel="noopener">Abrir enlace</a>`:""}
           <button class="btn-edit" data-id="${esc(w.id)}">Editar</button>
           <button class="btn-delete" data-id="${esc(w.id)}" data-url="${encodeURIComponent(w.archivo_url||"")}">Eliminar</button>
         </div>
@@ -229,7 +223,7 @@ async function editActivityDescription(group){
 }
 
 async function loadWorks(){
-  let result=await supabaseClient.from("trabajos").select("id,curso,periodo,semana,actividad,titulo,descripcion,fecha,archivo_url,archivo_nombre,creado_en").eq("usuario_id",user.id).order("fecha",{ascending:false}).order("creado_en",{ascending:false});
+  let result=await supabaseClient.from("trabajos").select("id,curso,periodo,semana,nombre_clase,actividad,titulo,descripcion,fecha,archivo_url,archivo_nombre,enlace_url,creado_en").eq("usuario_id",user.id).order("fecha",{ascending:false}).order("creado_en",{ascending:false});
   activityColumnAvailable=!result.error;
   if(result.error){
     result=await supabaseClient.from("trabajos").select("id,curso,periodo,semana,titulo,descripcion,fecha,archivo_url,archivo_nombre,creado_en").eq("usuario_id",user.id).order("fecha",{ascending:false}).order("creado_en",{ascending:false});
@@ -257,6 +251,10 @@ async function uploadWork(e){
   const btn=form.querySelector('button[type="submit"]');
   btn.disabled=true;
   const description=$("descripcion").value.trim();
+  const nombreClase=$("nombreClase").value.trim();
+  const optionalLink=$("enlaceUrl").value.trim();
+  if(!nombreClase){setMsg("Escribe el nombre de la clase de esta semana antes de subir las actividades.","error");return;}
+  if(optionalLink&&!/^https?:\\/\\//i.test(optionalLink)){setMsg("El enlace debe comenzar con https:// o http://.","error");return;}
   const date=$("fecha").value||new Date().toISOString().slice(0,10);
   let uploadedPaths=[];
   let savedCount=0;
@@ -270,7 +268,7 @@ async function uploadWork(e){
       if(upError)throw new Error("No se pudo subir «"+file.name+"»: "+upError.message);
       uploadedPaths.push(path);
       const {data:urlData}=supabaseClient.storage.from("trabajos").getPublicUrl(path);
-      const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,actividad,titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name};
+      const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,nombre_clase:nombreClase,actividad,titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name,enlace_url:optionalLink};
       let rowError=null;
       if(activityColumnAvailable)rowError=(await supabaseClient.from("trabajos").insert(payload)).error;
       if(rowError||!activityColumnAvailable){
@@ -286,6 +284,7 @@ async function uploadWork(e){
       savedCount++;
     }
     form.reset();
+    $("nombreClase").value=nombreClase;
     $("fecha").value=new Date().toISOString().slice(0,10);
     setMsg(`¡Listo! Se guardaron ${savedCount} archivo(s) en la Actividad ${activity}.`,"success");
     await loadWorks();
