@@ -271,38 +271,47 @@ async function uploadWork(e){
       const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,nombre_clase:nombreClase,actividad,titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name,enlace_url:optionalLink};
       let rowError=null;
       let linkNotSaved=false;
-      if(activityColumnAvailable)rowError=(await supabaseClient.from("trabajos").insert(payload)).error;
-      // Compatibilidad temporal: si falta enlace_url en Supabase, guarda el archivo
-      // sin ese campo para que la carga no falle. El enlace se podrá guardar al crear la columna.
-      if(rowError&&/enlace_url.*(column|schema cache)|column.*enlace_url/i.test(rowError.message||"")){
-        const payloadWithoutLink={...payload};
-        delete payloadWithoutLink.enlace_url;
-        rowError=(await supabaseClient.from("trabajos").insert(payloadWithoutLink)).error;
-        if(!rowError)linkNotSaved=Boolean(optionalLink);
-      }
-      if(rowError||!activityColumnAvailable){
-        if(rowError&&!/actividad|column|schema cache/i.test(rowError.message||""))throw new Error("No se pudo guardar «"+file.name+"»: "+rowError.message);
-        const legacyPayload={...payload};
-        delete legacyPayload.actividad;
-        legacyPayload.titulo=`Actividad ${activity} - ${title}`;
-        let legacyResult=await supabaseClient.from("trabajos").insert(legacyPayload);
-        if(legacyResult.error&&/enlace_url.*(column|schema cache)|column.*enlace_url/i.test(legacyResult.error.message||"")){
-          delete legacyPayload.enlace_url;
-          legacyResult=await supabaseClient.from("trabajos").insert(legacyPayload);
-          if(!legacyResult.error)linkNotSaved=Boolean(optionalLink);
+      let classNameNotSaved=false;
+      let activityFallback=false;
+      let insertPayload={...payload};
+      // Reintenta solo cuando Supabase informa que falta una columna.
+      // Así los campos opcionales/nuevos no bloquean la carga del archivo.
+      for(let attempt=0;attempt<4;attempt++){
+        const result=await supabaseClient.from("trabajos").insert(insertPayload);
+        rowError=result.error;
+        if(!rowError)break;
+        const message=String(rowError.message||"");
+        const missing=message.match(/(?:Could not find the '([^']+)' column|column ["']?([^ "'"]+)["']? .*does not exist|column ([a-zA-Z0-9_]+) of relation)/i);
+        const missingColumn=missing?.[1]||missing?.[2]||missing?.[3]||"";
+        if(!missingColumn||!/column|schema cache/i.test(message))break;
+        if(missingColumn==="enlace_url"&&Object.prototype.hasOwnProperty.call(insertPayload,"enlace_url")){
+          delete insertPayload.enlace_url;linkNotSaved=Boolean(optionalLink);continue;
         }
-        rowError=legacyResult.error;
-        activityColumnAvailable=false;
+        if(missingColumn==="nombre_clase"&&Object.prototype.hasOwnProperty.call(insertPayload,"nombre_clase")){
+          delete insertPayload.nombre_clase;classNameNotSaved=true;continue;
+        }
+        if(missingColumn==="actividad"&&Object.prototype.hasOwnProperty.call(insertPayload,"actividad")){
+          delete insertPayload.actividad;
+          insertPayload.titulo=`Actividad ${activity} - ${title}`;
+          activityFallback=true;continue;
+        }
+        break;
       }
       if(rowError)throw new Error("No se pudo guardar «"+file.name+"»: "+rowError.message);
       if(linkNotSaved)window.__portfolioLinkNotSaved=true;
+      if(classNameNotSaved)window.__portfolioClassNameNotSaved=true;
+      if(activityFallback)activityColumnAvailable=false;
       savedCount++;
     }
     form.reset();
     $("nombreClase").value=nombreClase;
     $("fecha").value=new Date().toISOString().slice(0,10);
-    setMsg(window.__portfolioLinkNotSaved ? `Se guardaron ${savedCount} archivo(s), pero el enlace no se guardó porque falta la columna enlace_url en Supabase. Ejecuta la migración para habilitar los enlaces.` : `¡Listo! Se guardaron ${savedCount} archivo(s) en la Actividad ${activity}.` ,window.__portfolioLinkNotSaved ? "error" : "success");
+    const warnings=[];
+    if(window.__portfolioLinkNotSaved)warnings.push("el enlace no se guardó porque falta la columna enlace_url en Supabase");
+    if(window.__portfolioClassNameNotSaved)warnings.push("el nombre de la clase no se guardó porque falta la columna nombre_clase en Supabase");
+    setMsg(warnings.length ? `Se guardaron ${savedCount} archivo(s), pero ${warnings.join(" y ")}. Ejecuta la migración SQL para habilitar esos datos.` : `¡Listo! Se guardaron ${savedCount} archivo(s) en la Actividad ${activity}.` ,warnings.length ? "error" : "success");
     window.__portfolioLinkNotSaved=false;
+    window.__portfolioClassNameNotSaved=false;
     await loadWorks();
   }catch(error){
     setMsg(`Se guardaron ${savedCount} de ${files.length} archivo(s). ${error.message} Puedes volver a intentar con los archivos pendientes.`,"error");
