@@ -49,9 +49,27 @@ function fileBaseName(name){
   return x.replace(/\.[^.]+$/i,"").replace(/[_]+/g," ").trim();
 }
 
+function storedActivityTitle(w){
+  const candidates=[w?.titulo,w?.nombre,w?.nombre_trabajo];
+  for(const value of candidates){
+    const title=cleanTitle(normalizeStoredText(value));
+    if(!isBadDisplayTitle(title))return title;
+  }
+  return "";
+}
+function groupActivityTitle(group){
+  const title=group?.items?.map(storedActivityTitle).find(value=>!isBadDisplayTitle(value));
+  if(title)return title;
+  if(group?.legacy)return "Trabajos anteriores";
+  return group?.activityNumber ? `Actividad ${group.activityNumber}` : "Actividad";
+}
+function groupActivityDescription(group){
+  return group?.items?.map(w=>normalizeStoredText(w?.descripcion).trim())
+    .find(value=>!isBadDisplayTitle(value)) || "";
+}
 function workDisplayTitle(w){
-  let title=cleanTitle(normalizeStoredText(w?.titulo));
-  if(!isBadDisplayTitle(title))return title;
+  const title=storedActivityTitle(w);
+  if(title)return title;
   const alt=cleanTitle(normalizeStoredText(w?.nombre??w?.nombre_trabajo));
   if(!isBadDisplayTitle(alt))return alt;
   return fileBaseName(w?.archivo_nombre)||"Trabajo";
@@ -176,8 +194,9 @@ function renderSelectedWeek(){
       <div class="activity-header">
         <div>
           <span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":`ACTIVIDAD ${group.activityNumber}`}</span>
-          <h4>${group.legacy?"Trabajos anteriores":`Actividad ${group.activityNumber}`}</h4>
-          <small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} agrupados</small><div style="margin-top:8px"><button type="button" class="btn-edit-description" data-group-index="${i}">Editar descripción de la actividad</button></div>
+          <h4>${esc(groupActivityTitle(group))}</h4>
+          <p class="activity-description">${esc(groupActivityDescription(group)||"Descripción no registrada.")}</p>
+          <small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} agrupados</small><div style="margin-top:8px"><button type="button" class="btn-edit-description" data-group-index="${i}">Editar título y descripción</button></div>
         </div>
         <span class="activity-number">${group.activityNumber||i+1}</span>
       </div>
@@ -196,22 +215,33 @@ function renderSelectedWeek(){
       </article>`).join("")}
     </section>`).join(""):`<div class="empty-week">No hay trabajos registrados en esta semana. Usa el formulario de arriba para subir uno.</div>`;
 
-  $("adminWeekList").querySelectorAll(".btn-edit-description").forEach(b=>b.addEventListener("click",()=>editActivityDescription(groups[Number(b.dataset.groupIndex)])));
+  $("adminWeekList").querySelectorAll(".btn-edit-description").forEach(b=>b.addEventListener("click",()=>editActivityDetails(groups[Number(b.dataset.groupIndex)])));
   $("adminWeekList").querySelectorAll(".btn-edit").forEach(b=>b.addEventListener("click",()=>openEditWork(b.dataset.id)));
   $("adminWeekList").querySelectorAll(".btn-delete").forEach(b=>b.addEventListener("click",()=>deleteWork(b.dataset.id,decodeURIComponent(b.dataset.url))));
 }
 
-async function editActivityDescription(group){
+async function editActivityDetails(group){
   if(!group||!group.items?.length)return;
-  const current=group.items.find(w=>String(w.descripcion||"").trim())?.descripcion||"";
-  const description=prompt("Escribe la descripción que quieres mostrar para esta actividad. Se aplicará a todos los archivos de esta misma actividad:",current);
-  if(description===null)return;
-  const cleanDescription=description.trim();
-  if(!confirm("¿Guardar esta descripción en los "+group.items.length+" archivo(s) de esta actividad?"))return;
+  const currentTitle=group.items.map(storedActivityTitle).find(value=>!isBadDisplayTitle(value))||"";
+  const titleInput=prompt("Escribe el título que quieres mostrar para esta actividad. Se aplicará a todos sus archivos:",currentTitle);
+  if(titleInput===null)return;
+  const title=titleInput.trim();
+  if(!title){
+    alert("El título no puede quedar vacío.");
+    return;
+  }
+  const currentDescription=groupActivityDescription(group);
+  const descriptionInput=prompt("Escribe la descripción que quieres mostrar debajo del título:",currentDescription);
+  if(descriptionInput===null)return;
+  const description=descriptionInput.trim();
+  if(!confirm("¿Guardar el título y la descripción en los "+group.items.length+" archivo(s) de esta actividad?"))return;
+
   for(const work of group.items){
-    const {error}=await supabaseClient.from("trabajos").update({descripcion:cleanDescription}).eq("id",work.id).eq("usuario_id",user.id);
+    const {error}=await supabaseClient.from("trabajos")
+      .update({titulo:title,descripcion:description})
+      .eq("id",work.id).eq("usuario_id",user.id);
     if(error){
-      alert("No se pudo actualizar la descripción de todos los archivos: "+error.message+"\nSe actualizaron los archivos anteriores a este error.");
+      alert("No se pudo actualizar todos los archivos: "+error.message+"\nLos archivos anteriores a este error sí se actualizaron.");
       await loadWorks();
       if(selectedCourse&&selectedPeriod&&selectedWeek)showSelectedWeek();
       return;
@@ -219,7 +249,7 @@ async function editActivityDescription(group){
   }
   await loadWorks();
   if(selectedCourse&&selectedPeriod&&selectedWeek)showSelectedWeek();
-  alert("Descripción de la actividad actualizada correctamente.");
+  alert("Título y descripción de la actividad actualizados correctamente.");
 }
 
 async function loadWorks(){
