@@ -40,7 +40,7 @@ function normalizeStoredText(value){
 
 function isBadDisplayTitle(value){
   const x=String(value??"").trim().toLowerCase().replace(/\s+/g,"");
-  return !x || ["{}","[]","null","undefined","[objectobject]",""""].includes(x);
+  return !x || ["{}","[]","null","undefined","[objectobject]"].includes(x);
 }
 
 function fileBaseName(name){
