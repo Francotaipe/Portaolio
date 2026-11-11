@@ -234,6 +234,14 @@ async function editActivityDetails(group){
   const descriptionInput=prompt("Escribe la descripción que quieres mostrar debajo del título:",currentDescription);
   if(descriptionInput===null)return;
   const description=descriptionInput.trim();
+  if(isBadDisplayTitle(title)){
+    alert("El título no puede estar vacío ni ser {}.");
+    return;
+  }
+  if(isBadDisplayTitle(description)||description.length<5){
+    alert("La descripción debe contener al menos 5 caracteres reales.");
+    return;
+  }
   if(!confirm("¿Guardar el título y la descripción en los "+group.items.length+" archivo(s) de esta actividad?"))return;
 
   for(const work of group.items){
