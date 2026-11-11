@@ -80,12 +80,27 @@ function workDisplayTitle(w){
   return fileBaseName(w?.archivo_nombre)||"Trabajo";
 }
 
+function storedActivityTitle(w){
+  const candidates=[w?.titulo,w?.enunciado,w?.nombre,w?.nombre_trabajo];
+  for(const value of candidates){
+    const title=cleanTitle(normalizeStoredText(value));
+    if(!isBadDisplayTitle(title))return title;
+  }
+  return "";
+}
+
+function groupActivityTitle(group){
+  const title=group?.items?.map(storedActivityTitle).find(value=>!isBadDisplayTitle(value));
+  if(title)return title;
+  if(group?.legacy)return "Trabajos anteriores";
+  if(group?.extra)return "Trabajos adicionales";
+  return group?.activityNumber ? `Actividad ${group.activityNumber}` : "Actividad";
+}
+
 function activityDescription(group){
-  const candidate=group?.items?.find(w=>!isBadDisplayTitle(normalizeStoredText(w?.descripcion)));
-  const stored=normalizeStoredText(candidate?.descripcion).trim();
-  if(!isBadDisplayTitle(stored))return stored;
-  const title=workDisplayTitle(group?.items?.[0]||{});
-  return title&&!isBadDisplayTitle(title) ? "Descripción del proyecto: "+title+"." : "Descripción del proyecto no registrada.";
+  const stored=group?.items?.map(w=>normalizeStoredText(w?.descripcion).trim())
+    .find(value=>!isBadDisplayTitle(value));
+  return stored || "Descripción no registrada.";
 }
 
 function extractActivityNumber(value){
@@ -199,15 +214,15 @@ function showPublicWeek(course, period, week) {
   $("publicNoWeek").classList.add("hidden");
   $("publicWeekDetail").classList.remove("hidden");
   $("publicWeekTitle").textContent = `${courseName(course)} · Período ${period} · Semana ${globalWeekNumber(period,week)}`;
-  const className=rows.find(w=>String(w.nombre_clase||"").trim())?.nombre_clase;
-  $("publicWeekSub").textContent = className ? "CLASE DE LA SEMANA: " + className : "Las actividades se separan por su actividad guardada.";
+  const className=rows.map(w=>normalizeStoredText(w.nombre_clase)).find(value=>!isBadDisplayTitle(value));
+  $("publicWeekSub").textContent = "CLASE DE LA SEMANA: " + (className || "Nombre de clase no registrado");
   $("publicWeekCount").textContent = `${groups.length} ${groups.length===1?"actividad":"actividades"}`;
 
   const list = $("publicWorkList");
   list.innerHTML = groups.length ? groups.map((group,i)=>`
     <section class="activity-block public-activity">
       <div class="activity-header">
-        <div><span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":group.extra?"TRABAJOS ADICIONALES":`ACTIVIDAD ${group.activityNumber}`}</span><h4>${esc(group.legacy?"Trabajos anteriores":group.extra?"Trabajos adicionales":(workDisplayTitle(group.items[0])||`Actividad ${group.activityNumber}`))}</h4>${group.items.length?`<p class="activity-description">${esc(activityDescription(group))}</p>`:""}<small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} en esta actividad</small></div>
+        <div><span class="activity-label">${group.legacy?"TRABAJOS ANTERIORES":group.extra?"TRABAJOS ADICIONALES":`ACTIVIDAD ${group.activityNumber}`}</span><h4>${esc(groupActivityTitle(group))}</h4><p class="activity-description">${esc(activityDescription(group))}</p><small class="activity-files-count">${group.items.length} ${group.items.length===1?"archivo":"archivos"} en esta actividad</small></div>
         <span class="activity-number">${group.legacy?"↺":group.extra?"＋":group.activityNumber}</span>
       </div>
       ${group.items.map(w=>`<article class="work-row">
