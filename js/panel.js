@@ -39,8 +39,8 @@ function normalizeStoredText(value){
 }
 
 function isBadDisplayTitle(value){
-  const x=String(value||"").trim().toLowerCase();
-  return !x || x==="{}" || x==="[object object]" || x==="null" || x==="undefined";
+  const x=String(value??"").trim().toLowerCase().replace(/\s+/g,"");
+  return !x || ["{}","[]","null","undefined","[objectobject]",""""].includes(x);
 }
 
 function fileBaseName(name){
@@ -291,9 +291,19 @@ async function uploadWork(e){
   const title=$("titulo").value.trim();
   if(!allowedActivities.includes(activity)){setMsg("Selecciona una actividad válida para esta semana.","error");return;}
   if(!title){setMsg("Escribe el nombre del trabajo.","error");return;}
-  const description=$("descripcion").value.trim();
+  const description=normalizeStoredText($("descripcion").value).trim();
   const nombreClase=$("nombreClase").value.trim();
   const optionalLink=$("enlaceUrl").value.trim();
+  if(isBadDisplayTitle(title)){
+    setMsg("Escribe un título válido. No se permite dejarlo vacío ni usar {} como título.","error");
+    $("titulo").focus();
+    return;
+  }
+  if(isBadDisplayTitle(description)||description.length<5){
+    setMsg("Escribe una descripción real de al menos 5 caracteres para la actividad.","error");
+    $("descripcion").focus();
+    return;
+  }
   if(!nombreClase){setMsg("Escribe el nombre de la clase de esta semana antes de subir las actividades.","error");return;}
   if(optionalLink&&!/^https?:\/\//i.test(optionalLink)){setMsg("El enlace debe comenzar con https:// o http://.","error");return;}
   const date=$("fecha").value||new Date().toISOString().slice(0,10);
@@ -320,9 +330,20 @@ async function uploadWork(e){
       // Reintenta solo cuando Supabase informa que falta una columna.
       // Así los campos opcionales/nuevos no bloquean la carga del archivo.
       for(let attempt=0;attempt<4;attempt++){
-        const result=await supabaseClient.from("trabajos").insert(insertPayload);
+        const result=await supabaseClient.from("trabajos")
+          .insert(insertPayload)
+          .select("id,titulo,descripcion")
+          .single();
         rowError=result.error;
-        if(!rowError)break;
+        if(!rowError){
+          const saved=result.data||{};
+          const savedTitle=String(saved.titulo??"").trim();
+          const savedDescription=String(saved.descripcion??"").trim();
+          if(savedTitle!==title||savedDescription!==description){
+            throw new Error("Supabase no confirmó el título y la descripción exactos. No continúes subiendo los archivos; revisa los datos del formulario.");
+          }
+          break;
+        }
         const message=String(rowError.message||"");
         const missing=message.match(/(?:Could not find the '([^']+)' column|column ["']?([^ "'"]+)["']? .*does not exist|column ([a-zA-Z0-9_]+) of relation)/i);
         const missingColumn=missing?.[1]||missing?.[2]||missing?.[3]||"";
