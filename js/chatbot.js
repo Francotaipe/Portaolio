@@ -48,8 +48,8 @@
     '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img id="portfolioPokemonImage" src="" alt="" loading="eager"></span></button>';
   document.body.appendChild(widget);
 
-  // Elegir un Pokémon inicial al entrar y guardar su progreso evolutivo.
-  // El contador se conserva aunque el visitante cambie de página o recargue.
+  // En cada recarga comienza desde la primera etapa del Pokémon seleccionado.
+  // La rotación de Pokémon sí se conserva, pero nunca la etapa evolutiva.
   const pokemonChains = [
     {
       id: "pikachu",
@@ -83,40 +83,20 @@
   const pokemonToggle = document.getElementById("portfolioChatToggle");
 
   let pokemonIndex = 0;
-  let evolutionProgress = {};
   try {
     const savedNext = Number(window.localStorage.getItem(ROTATION_KEY));
     if (Number.isInteger(savedNext) && savedNext >= 0 && savedNext < pokemonChains.length) {
       pokemonIndex = savedNext;
     }
     window.localStorage.setItem(ROTATION_KEY, String((pokemonIndex + 1) % pokemonChains.length));
-    const savedProgress = JSON.parse(window.localStorage.getItem(EVOLUTION_KEY) || "{}");
-    if (savedProgress && typeof savedProgress === "object" && !Array.isArray(savedProgress)) {
-      evolutionProgress = savedProgress;
-    }
+    // Elimina cualquier progreso evolutivo guardado por versiones anteriores.
+    window.localStorage.removeItem(EVOLUTION_KEY);
   } catch (_error) {
     // El asistente continúa funcionando aunque el almacenamiento esté bloqueado.
   }
 
   const currentChain = pokemonChains[pokemonIndex];
-  let currentProgress = evolutionProgress[currentChain.id];
-  if (!currentProgress || typeof currentProgress !== "object") {
-    currentProgress = { stage: 0, lastEvolutionAt: Date.now() };
-  }
-  currentProgress.stage = Math.max(0, Math.min(
-    currentChain.stages.length - 1,
-    Number.isInteger(Number(currentProgress.stage)) ? Number(currentProgress.stage) : 0
-  ));
-  currentProgress.lastEvolutionAt = Number(currentProgress.lastEvolutionAt) || Date.now();
-  evolutionProgress[currentChain.id] = currentProgress;
-
-  function saveEvolutionProgress() {
-    try {
-      window.localStorage.setItem(EVOLUTION_KEY, JSON.stringify(evolutionProgress));
-    } catch (_error) {
-      // La evolución sigue funcionando durante esta visita aunque no se pueda guardar.
-    }
-  }
+  const currentProgress = { stage: 0, lastEvolutionAt: Date.now() };
 
   function showCurrentPokemon() {
     const stage = currentChain.stages[currentProgress.stage];
@@ -146,7 +126,6 @@
   let evolutionTimer = null;
   function updateEvolution() {
     const now = Date.now();
-    let evolved = false;
     while (
       currentProgress.stage < currentChain.stages.length - 1 &&
       now - currentProgress.lastEvolutionAt >= EVOLUTION_INTERVAL_MS
@@ -157,20 +136,14 @@
       const next = currentChain.stages[currentProgress.stage].name;
       showCurrentPokemon();
       showEvolution(previous, next);
-      evolved = true;
     }
-    if (evolved) saveEvolutionProgress();
     if (currentProgress.stage >= currentChain.stages.length - 1 && evolutionTimer) {
       window.clearInterval(evolutionTimer);
       evolutionTimer = null;
     }
-    return evolved;
   }
 
   showCurrentPokemon();
-  saveEvolutionProgress();
-  // Si ya transcurrió el tiempo mientras el visitante estaba fuera, recupera la etapa.
-  updateEvolution();
   if (currentProgress.stage < currentChain.stages.length - 1) {
     evolutionTimer = window.setInterval(updateEvolution, 1000);
   }
