@@ -4,21 +4,19 @@
 
   const style = document.createElement("style");
   style.textContent =
-    "#portfolioChatWidget{position:fixed;left:0;right:0;bottom:8px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
-    "#portfolioChatToggle{pointer-events:auto;position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;width:120px;height:120px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:portfolioPikachuWalk 60s linear infinite}" +
+    "#portfolioChatWidget{position:fixed;left:auto;right:10px;bottom:10px;width:190px;height:190px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
+    "#portfolioChatToggle{pointer-events:auto;position:absolute;right:0;bottom:0;left:auto;display:flex;align-items:center;justify-content:center;width:178px;height:178px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:none!important;transform:none!important}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
-    ".portfolio-pikachu{display:inline-flex;width:116px;height:116px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
-    ".portfolio-pikachu img{display:block;width:116px;height:116px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 2px 2px #0002);animation:portfolioPokemonFace 28s linear infinite}" +
-    "#portfolioPikachuBubble{position:absolute;left:50%;bottom:105px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
+    ".portfolio-pikachu{display:inline-flex;width:166px;height:166px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
+    ".portfolio-pikachu img{display:block;width:160px;height:160px;object-fit:contain;image-rendering:pixelated;image-rendering:crisp-edges;filter:drop-shadow(0 3px 2px #0005);transform-origin:center bottom;animation:portfolioPokemonIdle 1.35s steps(5,end) infinite}" +
+    "#portfolioPikachuBubble{position:absolute;left:50%;bottom:158px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
     "#portfolioPikachuBubble:after{content:\"\";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #d6e6f6;border-bottom:1px solid #d6e6f6;transform:translateX(-50%) rotate(45deg)}" +
     "@keyframes portfolioBubbleFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}" +
-    "#portfolioChatWindow{display:none;position:fixed;left:12px;bottom:82px;width:min(360px,calc(100vw - 24px));height:480px;max-height:calc(100vh - 110px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
-    "@keyframes portfolioPikachuWalk{0%{left:0}46%{left:calc(100vw - 120px)}50%{left:calc(100vw - 120px)}96%{left:0}100%{left:0}}" +
-    "@keyframes portfolioPokemonFace{0%,46%{transform:scaleX(1)}50%,96%{transform:scaleX(-1)}100%{transform:scaleX(1)}}" +
-    "@keyframes portfolioPikachuBounce{from{transform:translateY(0)}to{transform:translateY(-5px)}}" +
+    "#portfolioChatWindow{display:none;position:fixed;left:auto;right:18px;bottom:188px;width:min(360px,calc(100vw - 36px));height:480px;max-height:calc(100vh - 215px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
+    "@keyframes portfolioPokemonIdle{0%,100%{transform:translateY(0) rotate(0deg)}20%{transform:translateY(-5px) rotate(-2deg)}40%{transform:translateY(0) rotate(1deg)}60%{transform:translateY(-3px) rotate(2deg)}80%{transform:translateY(0) rotate(-1deg)}}" +
     "#portfolioChatToggle.portfolio-pokemon-evolving .portfolio-pikachu img{animation:portfolioPokemonEvolution .38s ease-in-out 5;filter:drop-shadow(0 0 12px #ffe66d) drop-shadow(0 0 24px #fff)}" +
     "@keyframes portfolioPokemonEvolution{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.28);opacity:.45}}" +
-    "@media(prefers-reduced-motion:reduce){#portfolioChatToggle,.portfolio-pikachu{animation:none}}" +
+    "@media(prefers-reduced-motion:reduce){#portfolioChatToggle,.portfolio-pikachu img{animation:none!important}}" +
     "#portfolioChatWindow.open{display:flex}" +
     "#portfolioChatHeader{background:linear-gradient(135deg,#0877bd,#174a9b);color:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between}" +
     "#portfolioChatHeader strong{display:block;font-size:15px}#portfolioChatHeader small{display:block;opacity:.86;margin-top:3px}" +
@@ -31,7 +29,7 @@
     "#portfolioChatForm{display:flex;gap:8px;padding:12px;border-top:1px solid #e4edf6;background:#fff}" +
     "#portfolioChatInput{min-width:0;flex:1;border:1px solid #cbd9e8;border-radius:10px;padding:11px;font:inherit;font-size:13px;outline-color:#0877bd}" +
     "#portfolioChatSend{border:0;border-radius:10px;padding:0 14px;background:#0877bd;color:#fff;font-weight:700;cursor:pointer}" +
-    "@media(max-width:480px){#portfolioChatWidget{right:12px;bottom:12px}#portfolioChatWindow{right:0;width:calc(100vw - 24px);height:min(500px,calc(100vh - 95px))}}";
+    "@media(max-width:480px){#portfolioChatWidget{right:4px;bottom:6px;width:158px;height:158px}#portfolioChatToggle{width:150px;height:150px} .portfolio-pikachu{width:144px;height:144px}.portfolio-pikachu img{width:140px;height:140px}#portfolioPikachuBubble{bottom:136px;max-width:175px;font-size:11px}#portfolioChatWindow{right:10px;left:auto;bottom:160px;width:calc(100vw - 20px);height:min(500px,calc(100vh - 180px));max-height:calc(100vh - 180px)}}";
   document.head.appendChild(style);
 
   const widget = document.createElement("div");
