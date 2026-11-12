@@ -16,6 +16,8 @@
     "@keyframes portfolioPikachuWalk{0%{left:0}46%{left:calc(100vw - 120px)}50%{left:calc(100vw - 120px)}96%{left:0}100%{left:0}}" +
     "@keyframes portfolioPokemonFace{0%,46%{transform:scaleX(1)}50%,96%{transform:scaleX(-1)}100%{transform:scaleX(1)}}" +
     "@keyframes portfolioPikachuBounce{from{transform:translateY(0)}to{transform:translateY(-5px)}}" +
+    "#portfolioChatToggle.portfolio-pokemon-evolving .portfolio-pikachu img{animation:portfolioPokemonEvolution .38s ease-in-out 5;filter:drop-shadow(0 0 12px #ffe66d) drop-shadow(0 0 24px #fff)}" +
+    "@keyframes portfolioPokemonEvolution{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.28);opacity:.45}}" +
     "@media(prefers-reduced-motion:reduce){#portfolioChatToggle,.portfolio-pikachu{animation:none}}" +
     "#portfolioChatWindow.open{display:flex}" +
     "#portfolioChatHeader{background:linear-gradient(135deg,#0877bd,#174a9b);color:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between}" +
@@ -48,26 +50,127 @@
     '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img id="portfolioPokemonImage" src="" alt="" loading="eager"></span></button>';
   document.body.appendChild(widget);
 
-  // Alternar el Pokémon cada vez que se carga la página: Pikachu, Bulbasaur, Charmander.
-  const pokemonRotations = [
-    { name: "Pikachu", image: "https://media.tenor.com/3IACtMvxwdsAAAAi/pikachu-happy.gif" },
-    { name: "Bulbasaur", image: "https://media2.giphy.com/media/v1.Y2lkPTZjMDliOTUyM29rc2d3YWlyZm1wZXlmMjF1Ynoxa2V4YWk1YjljcnU3b240cjB2dSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/aTgBhsAp8kwdLkOC6z/source.gif" },
-    { name: "Charmander", image: "https://media4.giphy.com/media/v1.Y2lkPTZjMDliOTUyZ2xvNnluZDJkN3Q1aWJ0a3Bzdm0yZ20ycHJ5Z2hwdmo0cDVkdHhveSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/6xr4bW2csldWKmJkjO/giphy.gif" }
+  // Elegir un Pokémon inicial al entrar y guardar su progreso evolutivo.
+  // El contador se conserva aunque el visitante cambie de página o recargue.
+  const pokemonChains = [
+    {
+      id: "pikachu",
+      stages: [
+        { name: "Pikachu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/25.gif" },
+        { name: "Raichu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/26.gif" }
+      ]
+    },
+    {
+      id: "bulbasaur",
+      stages: [
+        { name: "Bulbasaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/1.gif" },
+        { name: "Ivysaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/2.gif" },
+        { name: "Venusaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/3.gif" }
+      ]
+    },
+    {
+      id: "charmander",
+      stages: [
+        { name: "Charmander", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/4.gif" },
+        { name: "Charmeleon", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/5.gif" },
+        { name: "Charizard", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/6.gif" }
+      ]
+    }
   ];
+  const EVOLUTION_INTERVAL_MS = 60 * 1000;
+  const ROTATION_KEY = "portfolioPokemonNextIndex";
+  const EVOLUTION_KEY = "portfolioPokemonEvolutionProgress";
   const pokemonImage = document.getElementById("portfolioPokemonImage");
+  const pokemonBubble = document.getElementById("portfolioPikachuBubble");
+  const pokemonToggle = document.getElementById("portfolioChatToggle");
+
   let pokemonIndex = 0;
+  let evolutionProgress = {};
   try {
-    const savedNext = Number(window.localStorage.getItem("portfolioPokemonNextIndex"));
-    if (Number.isInteger(savedNext) && savedNext >= 0 && savedNext < pokemonRotations.length) {
+    const savedNext = Number(window.localStorage.getItem(ROTATION_KEY));
+    if (Number.isInteger(savedNext) && savedNext >= 0 && savedNext < pokemonChains.length) {
       pokemonIndex = savedNext;
     }
-    window.localStorage.setItem("portfolioPokemonNextIndex", String((pokemonIndex + 1) % pokemonRotations.length));
+    window.localStorage.setItem(ROTATION_KEY, String((pokemonIndex + 1) % pokemonChains.length));
+    const savedProgress = JSON.parse(window.localStorage.getItem(EVOLUTION_KEY) || "{}");
+    if (savedProgress && typeof savedProgress === "object" && !Array.isArray(savedProgress)) {
+      evolutionProgress = savedProgress;
+    }
   } catch (_error) {
-    // Si el almacenamiento está bloqueado, Pikachu sigue funcionando como opción predeterminada.
+    // El asistente continúa funcionando aunque el almacenamiento esté bloqueado.
   }
-  pokemonImage.src = pokemonRotations[pokemonIndex].image;
-  pokemonImage.alt = pokemonRotations[pokemonIndex].name;
-  document.getElementById("portfolioChatToggle").setAttribute("aria-label", pokemonRotations[pokemonIndex].name + ", abre el asistente virtual");
+
+  const currentChain = pokemonChains[pokemonIndex];
+  let currentProgress = evolutionProgress[currentChain.id];
+  if (!currentProgress || typeof currentProgress !== "object") {
+    currentProgress = { stage: 0, lastEvolutionAt: Date.now() };
+  }
+  currentProgress.stage = Math.max(0, Math.min(
+    currentChain.stages.length - 1,
+    Number.isInteger(Number(currentProgress.stage)) ? Number(currentProgress.stage) : 0
+  ));
+  currentProgress.lastEvolutionAt = Number(currentProgress.lastEvolutionAt) || Date.now();
+  evolutionProgress[currentChain.id] = currentProgress;
+
+  function saveEvolutionProgress() {
+    try {
+      window.localStorage.setItem(EVOLUTION_KEY, JSON.stringify(evolutionProgress));
+    } catch (_error) {
+      // La evolución sigue funcionando durante esta visita aunque no se pueda guardar.
+    }
+  }
+
+  function showCurrentPokemon() {
+    const stage = currentChain.stages[currentProgress.stage];
+    pokemonImage.src = stage.image;
+    pokemonImage.alt = stage.name;
+    pokemonToggle.setAttribute("aria-label", stage.name + ", abre el asistente virtual");
+  }
+
+  let bubbleResetTimer = null;
+  function showEvolution(fromName, toName) {
+    if (bubbleResetTimer) window.clearTimeout(bubbleResetTimer);
+    pokemonBubble.textContent = "¡" + fromName + " evolucionó a " + toName + "!";
+    pokemonToggle.classList.remove("portfolio-pokemon-evolving");
+    void pokemonToggle.offsetWidth;
+    pokemonToggle.classList.add("portfolio-pokemon-evolving");
+    window.setTimeout(() => pokemonToggle.classList.remove("portfolio-pokemon-evolving"), 2400);
+    bubbleResetTimer = window.setTimeout(() => {
+      pokemonBubble.textContent = "¿Qué deseas consultar?";
+      bubbleResetTimer = null;
+    }, 7000);
+  }
+
+  let evolutionTimer = null;
+  function updateEvolution() {
+    const now = Date.now();
+    let evolved = false;
+    while (
+      currentProgress.stage < currentChain.stages.length - 1 &&
+      now - currentProgress.lastEvolutionAt >= EVOLUTION_INTERVAL_MS
+    ) {
+      const previous = currentChain.stages[currentProgress.stage].name;
+      currentProgress.stage += 1;
+      currentProgress.lastEvolutionAt += EVOLUTION_INTERVAL_MS;
+      const next = currentChain.stages[currentProgress.stage].name;
+      showCurrentPokemon();
+      showEvolution(previous, next);
+      evolved = true;
+    }
+    saveEvolutionProgress();
+    if (currentProgress.stage >= currentChain.stages.length - 1 && evolutionTimer) {
+      window.clearInterval(evolutionTimer);
+      evolutionTimer = null;
+    }
+    return evolved;
+  }
+
+  showCurrentPokemon();
+  // Si ya transcurrió el tiempo mientras el visitante estaba fuera, recupera la etapa.
+  updateEvolution();
+  if (currentProgress.stage < currentChain.stages.length - 1) {
+    evolutionTimer = window.setInterval(updateEvolution, 1000);
+  }
 
   const win = document.getElementById("portfolioChatWindow");
   const toggle = document.getElementById("portfolioChatToggle");
