@@ -56,24 +56,24 @@
     {
       id: "pikachu",
       stages: [
-        { name: "Pikachu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/25.gif" },
-        { name: "Raichu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/26.gif" }
+        { id: 25, name: "Pikachu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/25.gif" },
+        { id: 26, name: "Raichu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/26.gif" }
       ]
     },
     {
       id: "bulbasaur",
       stages: [
-        { name: "Bulbasaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/1.gif" },
-        { name: "Ivysaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/2.gif" },
-        { name: "Venusaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/3.gif" }
+        { id: 1, name: "Bulbasaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/1.gif" },
+        { id: 2, name: "Ivysaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/2.gif" },
+        { id: 3, name: "Venusaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/3.gif" }
       ]
     },
     {
       id: "charmander",
       stages: [
-        { name: "Charmander", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/4.gif" },
-        { name: "Charmeleon", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/5.gif" },
-        { name: "Charizard", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/6.gif" }
+        { id: 4, name: "Charmander", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/4.gif" },
+        { id: 5, name: "Charmeleon", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/5.gif" },
+        { id: 6, name: "Charizard", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/6.gif" }
       ]
     }
   ];
@@ -122,6 +122,10 @@
 
   function showCurrentPokemon() {
     const stage = currentChain.stages[currentProgress.stage];
+    pokemonImage.onerror = () => {
+      pokemonImage.onerror = null;
+      pokemonImage.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + stage.id + ".png";
+    };
     pokemonImage.src = stage.image;
     pokemonImage.alt = stage.name;
     pokemonToggle.setAttribute("aria-label", stage.name + ", abre el asistente virtual");
@@ -157,7 +161,7 @@
       showEvolution(previous, next);
       evolved = true;
     }
-    saveEvolutionProgress();
+    if (evolved) saveEvolutionProgress();
     if (currentProgress.stage >= currentChain.stages.length - 1 && evolutionTimer) {
       window.clearInterval(evolutionTimer);
       evolutionTimer = null;
@@ -166,6 +170,7 @@
   }
 
   showCurrentPokemon();
+  saveEvolutionProgress();
   // Si ya transcurrió el tiempo mientras el visitante estaba fuera, recupera la etapa.
   updateEvolution();
   if (currentProgress.stage < currentChain.stages.length - 1) {
