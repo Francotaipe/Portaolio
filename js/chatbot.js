@@ -8,15 +8,21 @@
     "#portfolioChatToggle{pointer-events:auto;position:absolute;right:0;bottom:0;left:auto;display:flex;align-items:center;justify-content:center;width:244px;height:244px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:none!important;transform:none!important}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
     ".portfolio-pikachu{display:inline-flex;width:232px;height:232px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
-    ".portfolio-pikachu img{display:block;width:224px;height:224px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 5px 4px #0006);transform-origin:center bottom;animation:portfolioPokemonIdle 1.6s ease-in-out infinite}" +
+    ".portfolio-pikachu{position:relative;z-index:2}" +
+    ".portfolio-pikachu img{display:block;position:relative;z-index:2;width:224px;height:224px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 5px 4px #0006);transform-origin:center bottom;animation:portfolioPokemonIdle 1.6s ease-in-out infinite}" +
     "#portfolioPikachuBubble{position:absolute;left:50%;bottom:214px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
     "#portfolioPikachuBubble:after{content:\"\";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #d6e6f6;border-bottom:1px solid #d6e6f6;transform:translateX(-50%) rotate(45deg)}" +
     "@keyframes portfolioBubbleFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}" +
     "#portfolioChatWindow{display:none;position:fixed;left:auto;right:18px;bottom:258px;width:min(360px,calc(100vw - 36px));height:480px;max-height:calc(100vh - 285px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
     "@keyframes portfolioPokemonIdle{0%,100%{transform:translateY(0) rotate(0deg)}20%{transform:translateY(-5px) rotate(-2deg)}40%{transform:translateY(0) rotate(1deg)}60%{transform:translateY(-3px) rotate(2deg)}80%{transform:translateY(0) rotate(-1deg)}}" +
-    "#portfolioChatToggle.portfolio-pokemon-evolving .portfolio-pikachu img{animation:portfolioPokemonEvolution .38s ease-in-out 5;filter:drop-shadow(0 0 12px #ffe66d) drop-shadow(0 0 24px #fff)}" +
-    "@keyframes portfolioPokemonEvolution{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.28);opacity:.45}}" +
-    "@media(prefers-reduced-motion:reduce){#portfolioChatToggle,.portfolio-pikachu img{animation:none!important}}" +
+    "#portfolioChatToggle{isolation:isolate;overflow:visible}" +
+    "#portfolioChatToggle.portfolio-pokemon-evolving::before{content:'';position:absolute;z-index:1;inset:10px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.98) 0%,rgba(135,235,255,.84) 22%,rgba(120,95,255,.38) 48%,transparent 72%);filter:blur(2px);animation:portfolioEvolutionAura 2.6s ease-out both}" +
+    "#portfolioChatToggle.portfolio-pokemon-evolving::after{content:'';position:absolute;z-index:1;inset:24px;border:4px solid rgba(190,245,255,.95);border-radius:50%;pointer-events:none;box-shadow:0 0 18px #fff,0 0 38px #55dfff, inset 0 0 22px #fff;animation:portfolioEvolutionRing 2.4s ease-out both}" +
+    "#portfolioChatToggle.portfolio-pokemon-evolving .portfolio-pikachu img{animation:portfolioPokemonEvolution 2.6s ease-in-out both;filter:drop-shadow(0 0 10px #fff) drop-shadow(0 0 24px #72eaff)}" +
+    "@keyframes portfolioEvolutionAura{0%{transform:scale(.15);opacity:0}18%{transform:scale(.65);opacity:1}48%{transform:scale(1.2);opacity:.96}72%{transform:scale(1.45);opacity:.58}100%{transform:scale(1.7);opacity:0}}" +
+    "@keyframes portfolioEvolutionRing{0%{transform:scale(.2) rotate(0deg);opacity:0}22%{transform:scale(.72) rotate(65deg);opacity:1}58%{transform:scale(1.16) rotate(190deg);opacity:.92}100%{transform:scale(1.55) rotate(300deg);opacity:0}}" +
+    "@keyframes portfolioPokemonEvolution{0%{transform:scale(1) translateY(0);opacity:1;filter:brightness(1)}18%{transform:scale(.82) translateY(-8px);opacity:.86;filter:brightness(2.3)}38%{transform:scale(1.18) translateY(-14px);opacity:.22;filter:brightness(3.5) blur(3px)}56%{transform:scale(.72) translateY(-5px);opacity:0;filter:brightness(4) blur(6px)}73%{transform:scale(1.16) translateY(-12px);opacity:.82;filter:brightness(1.8)}100%{transform:scale(1) translateY(0);opacity:1;filter:brightness(1)}}" +
+    "@media(prefers-reduced-motion:reduce){#portfolioChatToggle,.portfolio-pikachu img,#portfolioChatToggle::before,#portfolioChatToggle::after{animation:none!important}}" +
     "#portfolioChatWindow.open{display:flex}" +
     "#portfolioChatHeader{background:linear-gradient(135deg,#0877bd,#174a9b);color:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between}" +
     "#portfolioChatHeader strong{display:block;font-size:15px}#portfolioChatHeader small{display:block;opacity:.86;margin-top:3px}" +
@@ -112,11 +118,19 @@
   let bubbleResetTimer = null;
   function showEvolution(fromName, toName) {
     if (bubbleResetTimer) window.clearTimeout(bubbleResetTimer);
-    pokemonBubble.textContent = "¡" + fromName + " evolucionó a " + toName + "!";
+    pokemonBubble.textContent = "¡" + fromName + " está evolucionando!";
     pokemonToggle.classList.remove("portfolio-pokemon-evolving");
     void pokemonToggle.offsetWidth;
     pokemonToggle.classList.add("portfolio-pokemon-evolving");
-    window.setTimeout(() => pokemonToggle.classList.remove("portfolio-pokemon-evolving"), 2400);
+
+    // El Pokémon anterior se transforma entre destellos; la nueva forma aparece
+    // cuando la energía alcanza su punto máximo.
+    window.setTimeout(showCurrentPokemon, 950);
+    window.setTimeout(() => {
+      pokemonBubble.textContent = "¡" + toName + "! ✨";
+    }, 1500);
+    window.setTimeout(() => pokemonToggle.classList.remove("portfolio-pokemon-evolving"), 2600);
+
     bubbleResetTimer = window.setTimeout(() => {
       pokemonBubble.textContent = "¿Qué deseas consultar?";
       bubbleResetTimer = null;
@@ -134,7 +148,6 @@
       currentProgress.stage += 1;
       currentProgress.lastEvolutionAt += EVOLUTION_INTERVAL_MS;
       const next = currentChain.stages[currentProgress.stage].name;
-      showCurrentPokemon();
       showEvolution(previous, next);
     }
     if (currentProgress.stage >= currentChain.stages.length - 1 && evolutionTimer) {
