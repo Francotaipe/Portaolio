@@ -4,15 +4,15 @@
 
   const style = document.createElement("style");
   style.textContent =
-    "#portfolioChatWidget{position:fixed;left:auto;right:10px;bottom:10px;width:190px;height:190px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
-    "#portfolioChatToggle{pointer-events:auto;position:absolute;right:0;bottom:0;left:auto;display:flex;align-items:center;justify-content:center;width:178px;height:178px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:none!important;transform:none!important}" +
+    "#portfolioChatWidget{position:fixed;left:auto;right:10px;bottom:10px;width:255px;height:255px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
+    "#portfolioChatToggle{pointer-events:auto;position:absolute;right:0;bottom:0;left:auto;display:flex;align-items:center;justify-content:center;width:244px;height:244px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:none!important;transform:none!important}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
-    ".portfolio-pikachu{display:inline-flex;width:166px;height:166px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
-    ".portfolio-pikachu img{display:block;width:160px;height:160px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 3px 3px #0005);transform-origin:center bottom;animation:portfolioPokemonIdle 1.35s ease-in-out infinite}" +
-    "#portfolioPikachuBubble{position:absolute;left:50%;bottom:158px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
+    ".portfolio-pikachu{display:inline-flex;width:232px;height:232px;align-items:center;justify-content:center;overflow:visible;pointer-events:none}" +
+    ".portfolio-pikachu img{display:block;width:224px;height:224px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 5px 4px #0006);transform-origin:center bottom;animation:portfolioPokemonIdle 1.6s ease-in-out infinite}" +
+    "#portfolioPikachuBubble{position:absolute;left:50%;bottom:214px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:190px;padding:8px 12px;border-radius:16px;background:#fff;border:1px solid #d6e6f6;box-shadow:0 3px 12px #08274b22;color:#16436b;font-size:12px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
     "#portfolioPikachuBubble:after{content:\"\";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #d6e6f6;border-bottom:1px solid #d6e6f6;transform:translateX(-50%) rotate(45deg)}" +
     "@keyframes portfolioBubbleFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}" +
-    "#portfolioChatWindow{display:none;position:fixed;left:auto;right:18px;bottom:188px;width:min(360px,calc(100vw - 36px));height:480px;max-height:calc(100vh - 215px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
+    "#portfolioChatWindow{display:none;position:fixed;left:auto;right:18px;bottom:258px;width:min(360px,calc(100vw - 36px));height:480px;max-height:calc(100vh - 285px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
     "@keyframes portfolioPokemonIdle{0%,100%{transform:translateY(0) rotate(0deg)}20%{transform:translateY(-5px) rotate(-2deg)}40%{transform:translateY(0) rotate(1deg)}60%{transform:translateY(-3px) rotate(2deg)}80%{transform:translateY(0) rotate(-1deg)}}" +
     "#portfolioChatToggle.portfolio-pokemon-evolving .portfolio-pikachu img{animation:portfolioPokemonEvolution .38s ease-in-out 5;filter:drop-shadow(0 0 12px #ffe66d) drop-shadow(0 0 24px #fff)}" +
     "@keyframes portfolioPokemonEvolution{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.28);opacity:.45}}" +
@@ -29,7 +29,7 @@
     "#portfolioChatForm{display:flex;gap:8px;padding:12px;border-top:1px solid #e4edf6;background:#fff}" +
     "#portfolioChatInput{min-width:0;flex:1;border:1px solid #cbd9e8;border-radius:10px;padding:11px;font:inherit;font-size:13px;outline-color:#0877bd}" +
     "#portfolioChatSend{border:0;border-radius:10px;padding:0 14px;background:#0877bd;color:#fff;font-weight:700;cursor:pointer}" +
-    "@media(max-width:480px){#portfolioChatWidget{right:4px;bottom:6px;width:158px;height:158px}#portfolioChatToggle{width:150px;height:150px} .portfolio-pikachu{width:144px;height:144px}.portfolio-pikachu img{width:140px;height:140px}#portfolioPikachuBubble{bottom:136px;max-width:175px;font-size:11px}#portfolioChatWindow{right:10px;left:auto;bottom:160px;width:calc(100vw - 20px);height:min(500px,calc(100vh - 180px));max-height:calc(100vh - 180px)}}";
+    "@media(max-width:480px){#portfolioChatWidget{right:2px;bottom:4px;width:205px;height:205px}#portfolioChatToggle{width:196px;height:196px}.portfolio-pikachu{width:188px;height:188px}.portfolio-pikachu img{width:184px;height:184px}#portfolioPikachuBubble{bottom:178px;max-width:180px;font-size:11px}#portfolioChatWindow{right:10px;left:auto;bottom:205px;width:calc(100vw - 20px);height:min(500px,calc(100vh - 225px));max-height:calc(100vh - 225px)}}";
   document.head.appendChild(style);
 
   const widget = document.createElement("div");
@@ -54,28 +54,28 @@
     {
       id: "pikachu",
       stages: [
-        { id: 25, name: "Pikachu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/25.gif" },
-        { id: 26, name: "Raichu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/26.gif" }
+        { id: 25, name: "Pikachu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" },
+        { id: 26, name: "Raichu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/26.png" }
       ]
     },
     {
       id: "bulbasaur",
       stages: [
-        { id: 1, name: "Bulbasaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/1.gif" },
-        { id: 2, name: "Ivysaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/2.gif" },
-        { id: 3, name: "Venusaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/3.gif" }
+        { id: 1, name: "Bulbasaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" },
+        { id: 2, name: "Ivysaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/2.png" },
+        { id: 3, name: "Venusaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png" }
       ]
     },
     {
       id: "charmander",
       stages: [
-        { id: 4, name: "Charmander", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/4.gif" },
-        { id: 5, name: "Charmeleon", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/5.gif" },
-        { id: 6, name: "Charizard", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/black-white/animated/6.gif" }
+        { id: 4, name: "Charmander", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" },
+        { id: 5, name: "Charmeleon", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/5.png" },
+        { id: 6, name: "Charizard", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" }
       ]
     }
   ];
-  const EVOLUTION_INTERVAL_MS = 60 * 1000;
+  const EVOLUTION_INTERVAL_MS = 20 * 1000;
   const ROTATION_KEY = "portfolioPokemonNextIndex";
   const EVOLUTION_KEY = "portfolioPokemonEvolutionProgress";
   const pokemonImage = document.getElementById("portfolioPokemonImage");
@@ -122,7 +122,7 @@
     const stage = currentChain.stages[currentProgress.stage];
     pokemonImage.onerror = () => {
       pokemonImage.onerror = null;
-      pokemonImage.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + stage.id + ".png";
+      pokemonImage.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/" + stage.id + ".png";
     };
     pokemonImage.src = stage.image;
     pokemonImage.alt = stage.name;
