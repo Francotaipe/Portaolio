@@ -51,115 +51,12 @@
     '<button class="portfolio-chat-quick" type="button" data-question="¿Cómo entro al área privada?">Área privada</button></div>' +
     '<form id="portfolioChatForm"><input id="portfolioChatInput" type="text" maxlength="300" placeholder="Escribe tu pregunta..." aria-label="Escribe tu pregunta" autocomplete="off">' +
     '<button id="portfolioChatSend" type="submit">Enviar</button></form></section>' +
-    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Pikachu, abre el asistente virtual"><span id="portfolioPikachuBubble">¿Qué deseas consultar?</span><span class="portfolio-pikachu" aria-hidden="true"><img id="portfolioPokemonImage" src="" alt="" loading="eager"></span></button>';
+    '<button id="portfolioChatToggle" type="button" aria-expanded="false" aria-label="Robotito, abre el asistente virtual"><span id="portfolioRobotBubble">¡Hola! ¿En qué puedo ayudarte?</span><span class="portfolio-robot" aria-hidden="true"><svg class="portfolio-robot-svg" viewBox="0 0 240 260"><defs><linearGradient id="robotShell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#d9f5ff"/><stop offset="1" stop-color="#8bc9e8"/></linearGradient><linearGradient id="robotBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#79e8f3"/><stop offset="1" stop-color="#5478d9"/></linearGradient><linearGradient id="robotScreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#163c68"/><stop offset="1" stop-color="#071a39"/></linearGradient></defs><ellipse cx="120" cy="244" rx="66" ry="9" fill="#174b78" opacity=".17"/><path d="M120 28V15" stroke="#6bcde8" stroke-width="7" stroke-linecap="round"/><circle id="robotAntennaLight" cx="120" cy="11" r="9" fill="#7cf1ff" stroke="#3186bb" stroke-width="3"/><path d="M77 105L58 122l-2 43q0 12 12 12h9M163 105l19 17 2 43q0 12-12 12h-9" fill="none" stroke="#4d91c6" stroke-width="14" stroke-linecap="round"/><circle cx="66" cy="181" r="12" fill="#dff8ff" stroke="#4d91c6" stroke-width="5"/><circle cx="174" cy="181" r="12" fill="#dff8ff" stroke="#4d91c6" stroke-width="5"/><rect x="91" y="142" width="58" height="21" rx="9" fill="#579bc8"/><path d="M94 157v18m52-18v18" stroke="#4c86b9" stroke-width="8" stroke-linecap="round"/><rect x="65" y="163" width="110" height="73" rx="25" fill="url(#robotBody)" stroke="#397eb4" stroke-width="5"/><rect x="88" y="178" width="64" height="39" rx="12" fill="#e5fbff"/><circle cx="108" cy="197" r="5" fill="#31a8d4"/><circle cx="132" cy="197" r="5" fill="#31a8d4"/><path d="M111 207q9 7 18 0" fill="none" stroke="#3183b8" stroke-width="3" stroke-linecap="round"/><rect x="87" y="231" width="25" height="19" rx="8" fill="#d4f4ff" stroke="#4c91c4" stroke-width="4"/><rect x="128" y="231" width="25" height="19" rx="8" fill="#d4f4ff" stroke="#4c91c4" stroke-width="4"/><path d="M67 56q0-21 22-21h62q22 0 22 21v53q0 29-29 29h-48q-29 0-29-29z" fill="url(#robotShell)" stroke="#5798c5" stroke-width="5"/><rect x="79" y="57" width="82" height="61" rx="19" fill="url(#robotScreen)" stroke="#8bdff3" stroke-width="4"/><g class="robot-eye"><ellipse cx="102" cy="85" rx="8" ry="12" fill="#71edff"/><ellipse cx="138" cy="85" rx="8" ry="12" fill="#71edff"/><circle cx="100" cy="81" r="2.5" fill="#fff"/><circle cx="136" cy="81" r="2.5" fill="#fff"/></g><path d="M108 103q12 9 24 0" fill="none" stroke="#7bf0ff" stroke-width="4" stroke-linecap="round"/><path d="M66 73H54q-10 0-10 11v14q0 10 10 10h12M174 73h12q10 0 10 11v14q0 10-10 10h-12" fill="#a8e6f4" stroke="#5798c5" stroke-width="5"/><circle cx="53" cy="91" r="4" fill="#fff"/><circle cx="187" cy="91" r="4" fill="#fff"/><path d="M88 44q32-18 64 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".9"/></svg></span></button>';
   document.body.appendChild(widget);
 
-  // En cada recarga comienza desde la primera etapa del Pokémon seleccionado.
-  // La rotación de Pokémon sí se conserva, pero nunca la etapa evolutiva.
-  const pokemonChains = [
-    {
-      id: "pikachu",
-      stages: [
-        { id: 25, name: "Pikachu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" },
-        { id: 26, name: "Raichu", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/26.png" }
-      ]
-    },
-    {
-      id: "bulbasaur",
-      stages: [
-        { id: 1, name: "Bulbasaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" },
-        { id: 2, name: "Ivysaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/2.png" },
-        { id: 3, name: "Venusaur", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/3.png" }
-      ]
-    },
-    {
-      id: "charmander",
-      stages: [
-        { id: 4, name: "Charmander", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" },
-        { id: 5, name: "Charmeleon", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/5.png" },
-        { id: 6, name: "Charizard", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" }
-      ]
-    }
-  ];
-  const EVOLUTION_INTERVAL_MS = 20 * 1000;
-  const ROTATION_KEY = "portfolioPokemonNextIndex";
-  const EVOLUTION_KEY = "portfolioPokemonEvolutionProgress";
-  const pokemonImage = document.getElementById("portfolioPokemonImage");
-  const pokemonBubble = document.getElementById("portfolioPikachuBubble");
-  const pokemonToggle = document.getElementById("portfolioChatToggle");
-
-  let pokemonIndex = 0;
-  try {
-    const savedNext = Number(window.localStorage.getItem(ROTATION_KEY));
-    if (Number.isInteger(savedNext) && savedNext >= 0 && savedNext < pokemonChains.length) {
-      pokemonIndex = savedNext;
-    }
-    window.localStorage.setItem(ROTATION_KEY, String((pokemonIndex + 1) % pokemonChains.length));
-    // Elimina cualquier progreso evolutivo guardado por versiones anteriores.
-    window.localStorage.removeItem(EVOLUTION_KEY);
-  } catch (_error) {
-    // El asistente continúa funcionando aunque el almacenamiento esté bloqueado.
-  }
-
-  const currentChain = pokemonChains[pokemonIndex];
-  const currentProgress = { stage: 0, lastEvolutionAt: Date.now() };
-
-  function showCurrentPokemon() {
-    const stage = currentChain.stages[currentProgress.stage];
-    pokemonImage.onerror = () => {
-      pokemonImage.onerror = null;
-      pokemonImage.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/" + stage.id + ".png";
-    };
-    pokemonImage.src = stage.image;
-    pokemonImage.alt = stage.name;
-    pokemonToggle.setAttribute("aria-label", stage.name + ", abre el asistente virtual");
-  }
-
-  let bubbleResetTimer = null;
-  function showEvolution(fromName, toName) {
-    if (bubbleResetTimer) window.clearTimeout(bubbleResetTimer);
-    pokemonBubble.textContent = "¡" + fromName + " está evolucionando!";
-    pokemonToggle.classList.remove("portfolio-pokemon-evolving");
-    void pokemonToggle.offsetWidth;
-    pokemonToggle.classList.add("portfolio-pokemon-evolving");
-
-    // El Pokémon anterior se transforma entre destellos; la nueva forma aparece
-    // cuando la energía alcanza su punto máximo.
-    window.setTimeout(showCurrentPokemon, 950);
-    window.setTimeout(() => {
-      pokemonBubble.textContent = "¡" + toName + "! ✨";
-    }, 1500);
-    window.setTimeout(() => pokemonToggle.classList.remove("portfolio-pokemon-evolving"), 2600);
-
-    bubbleResetTimer = window.setTimeout(() => {
-      pokemonBubble.textContent = "¿Qué deseas consultar?";
-      bubbleResetTimer = null;
-    }, 7000);
-  }
-
-  let evolutionTimer = null;
-  function updateEvolution() {
-    const now = Date.now();
-    while (
-      currentProgress.stage < currentChain.stages.length - 1 &&
-      now - currentProgress.lastEvolutionAt >= EVOLUTION_INTERVAL_MS
-    ) {
-      const previous = currentChain.stages[currentProgress.stage].name;
-      currentProgress.stage += 1;
-      currentProgress.lastEvolutionAt += EVOLUTION_INTERVAL_MS;
-      const next = currentChain.stages[currentProgress.stage].name;
-      showEvolution(previous, next);
-    }
-    if (currentProgress.stage >= currentChain.stages.length - 1 && evolutionTimer) {
-      window.clearInterval(evolutionTimer);
-      evolutionTimer = null;
-    }
-  }
-
-  showCurrentPokemon();
-  if (currentProgress.stage < currentChain.stages.length - 1) {
-    evolutionTimer = window.setInterval(updateEvolution, 1000);
-  }
+  // Mascota original del asistente: robotito animado, sin transformaciones programadas.
+  const robotToggle = document.getElementById("portfolioChatToggle");
+  robotToggle.setAttribute("aria-label", "Robotito, abre el asistente virtual");
 
   const win = document.getElementById("portfolioChatWindow");
   const toggle = document.getElementById("portfolioChatToggle");
@@ -294,7 +191,7 @@
     const q = normalizeText(raw);
     const course = findCourse(q);
     if (/^(hola|buenas|buenos dias|buenas tardes|buenas noches|saludos)[!. ]*$/.test(q))
-      return "¡Hola! ⚡ Soy Pikachu, tu asistente del portafolio. Puedo contarte sobre el perfil académico publicado, los dos cursos y los trabajos disponibles. ¿Qué deseas consultar?";
+      return "¡Hola! 🤖 Soy Robotito, tu asistente del portafolio. Puedo contarte sobre el perfil académico publicado, los dos cursos y los trabajos disponibles. ¿Qué deseas consultar?";
     if (/(quien eres|perfil|presentacion|estudiante|nombre|carrera|mis datos|informacion personal|informacion sobre mi)/.test(q) && !/(curso|trabajo|actividad)/.test(q))
       return "El portafolio pertenece a Franco Roy Taipe Quispe, estudiante de Ingeniería de Sistemas y Computación en la Universidad Peruana Los Andes (UPLA), IV ciclo. La página organiza sus trabajos académicos en dos cursos: Desarrollo de Aplicaciones y Algoritmos y Estructura de Datos. No muestra otros datos personales de contacto.";
     if (/(que cursos|cuales cursos|mis cursos|lista de cursos|cursos registrados)/.test(q))
@@ -425,7 +322,7 @@
       return "Esa pregunta está relacionada con tus cursos. En Algoritmos y Estructura de Datos, conviene identificar primero los datos de entrada, el proceso y el resultado esperado; luego elegir estructuras de control y datos apropiadas. En Desarrollo de Aplicaciones, se traduce la solución a código organizado, se divide en métodos o componentes y se prueba con distintos casos. Si me indicas el concepto exacto (por ejemplo, ciclos, arreglos, métodos, clases o bases de datos), te lo explico paso a paso con un ejemplo.";
     if (/(que es|que son|como funciona|como se hace|explica|explicame|para que sirve|diferencia entre|ejemplo de)/.test(q) && !course)
       return "Ese tema no parece estar relacionado con los dos cursos de este portafolio. Puedo ayudarte con Desarrollo de Aplicaciones o Algoritmos y Estructura de Datos. Pregúntame sobre variables, algoritmos, pseudocódigo, arreglos, estructuras de datos, métodos, clases, programación o actividades publicadas.";
-    if (/(gracias|muchas gracias)/.test(q)) return "¡Pika-pika! ⚡ ¡Con gusto! Pregúntame por tu perfil, uno de los dos cursos o por una actividad/trabajo publicado.";
+    if (/(gracias|muchas gracias)/.test(q)) return "¡Con gusto! 🤖 Pregúntame por tu perfil, uno de los dos cursos o por una actividad/trabajo publicado."
     return "Puedo consultar el perfil académico público y los trabajos de estos dos cursos: Desarrollo de Aplicaciones y Algoritmos y Estructura de Datos. Prueba: «¿Qué temas tiene Desarrollo de Aplicaciones?» o «Dame la actividad 2 de Algoritmos, semana 5».";
   }
 
@@ -438,7 +335,7 @@
     addMessage(clean, "user");
     const waiting = document.createElement("div");
     waiting.className = "portfolio-chat-msg portfolio-chat-bot";
-    waiting.textContent = "Pikachu está buscando la información…";
+    waiting.textContent = "Robotito está buscando la información…";
     messages.appendChild(waiting);
     messages.scrollTop = messages.scrollHeight;
     try {
@@ -476,7 +373,7 @@
     win.classList.add("open");
     win.setAttribute("aria-hidden", "false");
     toggle.setAttribute("aria-expanded", "true");
-    if (!messages.childElementCount) addMessage("¡Pika-pika! ⚡ ¡Hola! Soy tu asistente virtual. ¿Qué deseas saber o consultar? Puedes preguntarme por el perfil, los cursos, los trabajos o el área privada.", "bot");
+    if (!messages.childElementCount) addMessage("¡Hola! 🤖 Soy Robotito, tu asistente virtual. ¿Qué deseas saber o consultar? Puedes preguntarme por el perfil, los cursos, los trabajos o el área privada.", "bot");
     input.focus();
   }
   function closeChat() {
