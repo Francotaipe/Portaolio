@@ -40,7 +40,13 @@ function normalizeStoredText(value){
 
 function isBadDisplayTitle(value){
   const x=String(value??"").trim().toLowerCase().replace(/\s+/g,"");
-  return !x || ["{}","[]","null","undefined","[objectobject]"].includes(x);
+  const htmlElementText=/^\[objecthtml(?:input|textarea|select|button)element\]$/.test(x);
+  return !x || htmlElementText || ["{}","[]","null","undefined","[objectobject]"].includes(x);
+}
+function readFieldText(id){
+  const element=$(id);
+  if(!element || typeof element.value!=="string")return "";
+  return element.value.trim();
 }
 
 function fileBaseName(name){
@@ -358,12 +364,12 @@ async function uploadWork(e){
   }
   const activity=Number($("actividad").value);
   const allowedActivities=activitiesForWeek(selectedCourse,selectedWeek);
-  const title=$("titulo").value.trim();
+  const title=readFieldText("titulo");
   if(!allowedActivities.includes(activity)){setMsg("Selecciona una actividad válida para esta semana.","error");return;}
   if(!title){setMsg("Escribe el nombre del trabajo.","error");return;}
-  const description=normalizeStoredText($("descripcion").value).trim();
-  const nombreClase=$("nombreClase").value.trim();
-  const optionalLink=$("enlaceUrl").value.trim();
+  const description=readFieldText("descripcion");
+  const nombreClase=readFieldText("nombreClase");
+  const optionalLink=readFieldText("enlaceUrl");
   if(isBadDisplayTitle(title)){
     setMsg("Escribe un título válido. No se permite dejarlo vacío ni usar {} como título.","error");
     $("titulo").focus();
