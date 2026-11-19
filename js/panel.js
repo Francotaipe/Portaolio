@@ -290,7 +290,7 @@ async function loadWorks(){
 }
 
 async function uploadStorageObject(path,file,onProgress){
-  const useResumable=file.size>6*1024*1024 || /\\.(zip|rar|7z)$/i.test(file.name||"");
+  const useResumable=file.size>6*1024*1024 || /\.(zip|rar|7z)$/i.test(file.name||"");
   if(!useResumable){
     const result=await supabaseClient.storage.from("trabajos")
       .upload(path,file,{cacheControl:"3600",upsert:false});
