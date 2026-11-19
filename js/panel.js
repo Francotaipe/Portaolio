@@ -349,6 +349,13 @@ async function uploadWork(e){
   if(!selectedCourse||!selectedPeriod||!selectedWeek){setMsg("Selecciona curso, período y semana primero.","error");return;}
   const form=e.currentTarget,files=Array.from($("archivo").files||[]);
   if(!files.length){setMsg("Selecciona al menos un archivo.","error");return;}
+  const freePlanMaxFileSize=50*1024*1024;
+  const oversizedFile=files.find(file=>file.size>freePlanMaxFileSize);
+  if(oversizedFile){
+    const sizeMb=(oversizedFile.size/(1024*1024)).toFixed(1);
+    setMsg(`«${oversizedFile.name}» pesa ${sizeMb} MB y supera el límite máximo de 50 MB por archivo del plan Free de Supabase. Comprime o divide el ZIP en partes más pequeñas.`,"error");
+    return;
+  }
   const activity=Number($("actividad").value);
   const allowedActivities=activitiesForWeek(selectedCourse,selectedWeek);
   const title=$("titulo").value.trim();
