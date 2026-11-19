@@ -279,17 +279,22 @@ async function loadWorks(){
   }
   works=(result.data||[]).map(normalizeWorkRecord);
   $("totalAdmin").textContent=works.length;
-  if(keepCourse){
-    selectedCourse=keepCourse;selectedPeriod=keepPeriod;selectedWeek=keepWeek;
-    renderCourseExplorer(keepCourse);
-    if(keepPeriod&&keepWeek){
-      const targetPeriod=$("privateCourseExplorer").querySelectorAll(".period-explorer-card")[keepPeriod-1];
+
+  // Actualiza el explorador si el usuario seleccionó el curso mientras cargaban los trabajos.
+  const activeCourse=selectedCourse||keepCourse;
+  const activePeriod=selectedCourse?selectedPeriod:keepPeriod;
+  const activeWeek=selectedCourse?selectedWeek:keepWeek;
+  if(activeCourse){
+    selectedCourse=activeCourse;
+    renderCourseExplorer(activeCourse);
+    if(activePeriod&&activeWeek){
+      const targetPeriod=$("privateCourseExplorer").querySelectorAll(".period-explorer-card")[activePeriod-1];
       if(targetPeriod){
         targetPeriod.querySelector(".period-select-button")?.classList.add("active");
-        const targetWeek=targetPeriod.querySelectorAll(".week-select-button")[keepWeek-1];
+        const targetWeek=targetPeriod.querySelectorAll(".week-select-button")[activeWeek-1];
         targetWeek?.classList.add("active");
       }
-      selectedPeriod=keepPeriod;selectedWeek=keepWeek;
+      selectedPeriod=activePeriod;selectedWeek=activeWeek;
       showSelectedWeek();
     }
   }
