@@ -283,5 +283,23 @@ async function load() {
   $("totalWorks").textContent=allWorks.length;
   $("totalPeriods").textContent=new Set(allWorks.map(w=>`${w.curso}-${w.periodo}`)).size;
   $("totalWeeks").textContent=new Set(allWorks.map(w=>`${w.curso}-${w.semana}`)).size;
+
+  // Si se seleccionó un curso durante la descarga, redibujar con los datos ya cargados.
+  const activeCourse=selectedCourse;
+  const activePeriod=selectedPeriod;
+  const activeWeek=selectedWeek;
+  if(activeCourse){
+    renderCourseExplorer(activeCourse);
+    if(activePeriod&&activeWeek){
+      selectedPeriod=activePeriod;
+      selectedWeek=activeWeek;
+      const weekButton=$("publicCourseExplorer").querySelector(
+        `.week-select-button[data-period="${activePeriod}"][data-week="${activeWeek}"]`
+      );
+      weekButton?.classList.add("active");
+      weekButton?.closest(".period-explorer-card")?.querySelector(".period-select-button")?.classList.add("active");
+      showPublicWeek(activeCourse,activePeriod,activeWeek);
+    }
+  }
 }
 load();
