@@ -289,6 +289,61 @@ async function loadWorks(){
   }
 }
 
+async function uploadStorageObject(path,file,onProgress){
+  const useResumable=file.size>6*1024*1024 || /\\.(zip|rar|7z)$/i.test(file.name||"");
+  if(!useResumable){
+    const result=await supabaseClient.storage.from("trabajos")
+      .upload(path,file,{cacheControl:"3600",upsert:false});
+    if(result.error)throw result.error;
+    return;
+  }
+
+  if(!window.tus || typeof window.tus.Upload!=="function"){
+    throw new Error("No se cargó el módulo de cargas grandes. Actualiza la página con Ctrl + F5 e inténtalo nuevamente.");
+  }
+
+  const sessionResult=await supabaseClient.auth.getSession();
+  if(sessionResult.error)throw new Error("No se pudo validar tu sesión: "+sessionResult.error.message);
+  const accessToken=sessionResult.data?.session?.access_token;
+  if(!accessToken)throw new Error("Tu sesión ha vencido. Cierra sesión, vuelve a ingresar e intenta subir el archivo.");
+
+  const projectRef=new URL(SUPABASE_URL).hostname.split(".")[0];
+  const endpoint="https://"+projectRef+".storage.supabase.co/storage/v1/upload/resumable";
+
+  await new Promise((resolve,reject)=>{
+    let settled=false;
+    const finish=(fn,value)=>{
+      if(settled)return;
+      settled=true;
+      fn(value);
+    };
+    const upload=new window.tus.Upload(file,{
+      endpoint,
+      retryDelays:[0,3000,5000,10000,20000],
+      headers:{
+        authorization:"Bearer "+accessToken,
+        apikey:SUPABASE_ANON_KEY,
+        "x-upsert":"false"
+      },
+      uploadDataDuringCreation:true,
+      removeFingerprintOnSuccess:true,
+      chunkSize:6*1024*1024,
+      metadata:{
+        bucketName:"trabajos",
+        objectName:path,
+        contentType:file.type||"application/octet-stream",
+        cacheControl:"3600"
+      },
+      onError:error=>finish(reject,new Error("Falló la carga reanudable de «"+file.name+"»: "+(error?.message||String(error)))),
+      onProgress:(uploaded,total)=>{
+        if(typeof onProgress==="function")onProgress(uploaded,total);
+      },
+      onSuccess:()=>finish(resolve)
+    });
+    upload.start();
+  });
+}
+
 async function uploadWork(e){
   e.preventDefault();
   if(!selectedCourse||!selectedPeriod||!selectedWeek){setMsg("Selecciona curso, período y semana primero.","error");return;}
@@ -326,8 +381,10 @@ async function uploadWork(e){
       setMsg(`Subiendo archivo ${i+1} de ${files.length}: ${file.name}`);
       const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
       const path=`${user.id}/${Date.now()}_${i}_${safe}`;
-      const {error:upError}=await supabaseClient.storage.from("trabajos").upload(path,file,{cacheControl:"3600",upsert:false});
-      if(upError)throw new Error("No se pudo subir «"+file.name+"»: "+upError.message);
+      await uploadStorageObject(path,file,(uploaded,total)=>{
+        const percentage=total?Math.floor((uploaded/total)*100):0;
+        setMsg(`Subiendo archivo ${i+1} de ${files.length}: ${file.name} (${percentage}%)`);
+      });
       uploadedPaths.push(path);
       const {data:urlData}=supabaseClient.storage.from("trabajos").getPublicUrl(path);
       const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,nombre_clase:nombreClase,actividad:String(activity),titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name,enlace_url:optionalLink};
