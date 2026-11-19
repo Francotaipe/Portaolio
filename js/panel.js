@@ -344,11 +344,30 @@ async function uploadWork(e){
           .single();
         rowError=result.error;
         if(!rowError){
-          const saved=result.data||{};
-          const savedTitle=String(saved.titulo??"").trim();
-          const savedDescription=String(saved.descripcion??"").trim();
-          if(savedTitle!==title||savedDescription!==description){
-            throw new Error("Supabase no confirmó el título y la descripción exactos. No continúes subiendo los archivos; revisa los datos del formulario.");
+          // La columna actividad puede requerir una ruta alternativa que antepone
+          // "Actividad N - " al título; se valida contra el payload final enviado.
+          const expectedTitle=String(insertPayload.titulo??"").trim();
+          const expectedDescription=String(insertPayload.descripcion??"").trim();
+          let saved=result.data||{};
+          let savedTitle=String(saved.titulo??"").trim();
+          let savedDescription=String(saved.descripcion??"").trim();
+
+          // Si la respuesta de INSERT no devuelve completos los campos, consulta
+          // nuevamente el registro por su ID antes de declarar que hubo un fallo.
+          if(saved.id && (savedTitle!==expectedTitle||savedDescription!==expectedDescription)){
+            const verify=await supabaseClient.from("trabajos")
+              .select("id,titulo,descripcion")
+              .eq("id",saved.id)
+              .eq("usuario_id",user.id)
+              .maybeSingle();
+            if(verify.error) throw new Error("El archivo se cargó, pero no se pudo verificar el registro: "+verify.error.message);
+            saved=verify.data||{};
+            savedTitle=String(saved.titulo??"").trim();
+            savedDescription=String(saved.descripcion??"").trim();
+          }
+
+          if(!saved.id||savedTitle!==expectedTitle||savedDescription!==expectedDescription){
+            throw new Error("Supabase no confirmó el título y la descripción enviados. Revisa el formulario antes de volver a subir los archivos.");
           }
           break;
         }
