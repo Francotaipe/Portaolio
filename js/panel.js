@@ -409,40 +409,50 @@ async function uploadWork(e){
           .single();
         rowError=result.error;
         if(!rowError){
-          // El INSERT fue aceptado. La lectura posterior solo sirve de diagnóstico:
-          // nunca debe detener los demás archivos ni inducir una carga duplicada.
+          // Reescribe título y descripción de forma explícita después del INSERT.
+          // Así no dependemos de que la respuesta del INSERT devuelva esos campos.
           const expectedTitle=String(insertPayload.titulo??"").trim();
           const expectedDescription=String(insertPayload.descripcion??"").trim();
           let saved=result.data||{};
-          let verified=Boolean(saved.id &&
-            String(saved.titulo??"").trim()===expectedTitle &&
-            String(saved.descripcion??"").trim()===expectedDescription);
 
-          if(!verified){
-            const check=await supabaseClient.from("trabajos")
-              .select("id,titulo,descripcion")
+          if(!saved.id){
+            const lookup=await supabaseClient.from("trabajos")
+              .select("id")
               .eq("usuario_id",user.id)
               .eq("archivo_url",urlData.publicUrl)
               .maybeSingle();
-            if(check.error){
-              console.warn("El INSERT fue aceptado, pero no se pudo verificar el registro:",check.error.message);
+            if(lookup.error){
+              console.warn("No se pudo localizar el registro recién creado:",lookup.error.message);
               verificationWarning=true;
-            }else if(check.data){
-              saved=check.data;
-              verified=String(saved.titulo??"").trim()===expectedTitle &&
-                String(saved.descripcion??"").trim()===expectedDescription;
-              if(!verified){
-                console.warn("El registro existe, pero la lectura devuelve textos distintos a los enviados.",{
-                  id:saved.id,
-                  titleMatches:String(saved.titulo??"").trim()===expectedTitle,
-                  descriptionMatches:String(saved.descripcion??"").trim()===expectedDescription
+            }else{
+              saved=lookup.data||{};
+            }
+          }
+
+          if(saved.id){
+            const writeBack=await supabaseClient.from("trabajos")
+              .update({titulo:expectedTitle,descripcion:expectedDescription})
+              .eq("id",saved.id)
+              .eq("usuario_id",user.id)
+              .select("id,titulo,descripcion")
+              .single();
+            if(writeBack.error){
+              console.warn("El registro existe, pero no se pudieron confirmar sus datos:",writeBack.error.message);
+              verificationWarning=true;
+            }else{
+              const confirmed=writeBack.data||{};
+              if(String(confirmed.titulo??"").trim()!==expectedTitle ||
+                 String(confirmed.descripcion??"").trim()!==expectedDescription){
+                console.warn("La actualización del título o descripción no devolvió los valores esperados.",{
+                  id:confirmed.id,
+                  titleMatches:String(confirmed.titulo??"").trim()===expectedTitle,
+                  descriptionMatches:String(confirmed.descripcion??"").trim()===expectedDescription
                 });
                 verificationWarning=true;
               }
-            }else{
-              console.warn("El INSERT no devolvió la fila y la consulta por archivo_url aún no la encuentra.");
-              verificationWarning=true;
             }
+          }else{
+            verificationWarning=true;
           }
           break;
         }
