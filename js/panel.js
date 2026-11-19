@@ -319,6 +319,7 @@ async function uploadWork(e){
   btn.disabled=true;
   let uploadedPaths=[];
   let savedCount=0;
+  let verificationWarning=false;
   try{
     for(let i=0;i<files.length;i++){
       const file=files[i];
@@ -344,30 +345,40 @@ async function uploadWork(e){
           .single();
         rowError=result.error;
         if(!rowError){
-          // La columna actividad puede requerir una ruta alternativa que antepone
-          // "Actividad N - " al título; se valida contra el payload final enviado.
+          // El INSERT fue aceptado. La lectura posterior solo sirve de diagnóstico:
+          // nunca debe detener los demás archivos ni inducir una carga duplicada.
           const expectedTitle=String(insertPayload.titulo??"").trim();
           const expectedDescription=String(insertPayload.descripcion??"").trim();
           let saved=result.data||{};
-          let savedTitle=String(saved.titulo??"").trim();
-          let savedDescription=String(saved.descripcion??"").trim();
+          let verified=Boolean(saved.id &&
+            String(saved.titulo??"").trim()===expectedTitle &&
+            String(saved.descripcion??"").trim()===expectedDescription);
 
-          // Si la respuesta de INSERT no devuelve completos los campos, consulta
-          // nuevamente el registro por su ID antes de declarar que hubo un fallo.
-          if(saved.id && (savedTitle!==expectedTitle||savedDescription!==expectedDescription)){
-            const verify=await supabaseClient.from("trabajos")
+          if(!verified){
+            const check=await supabaseClient.from("trabajos")
               .select("id,titulo,descripcion")
-              .eq("id",saved.id)
               .eq("usuario_id",user.id)
+              .eq("archivo_url",urlData.publicUrl)
               .maybeSingle();
-            if(verify.error) throw new Error("El archivo se cargó, pero no se pudo verificar el registro: "+verify.error.message);
-            saved=verify.data||{};
-            savedTitle=String(saved.titulo??"").trim();
-            savedDescription=String(saved.descripcion??"").trim();
-          }
-
-          if(!saved.id||savedTitle!==expectedTitle||savedDescription!==expectedDescription){
-            throw new Error("Supabase no confirmó el título y la descripción enviados. Revisa el formulario antes de volver a subir los archivos.");
+            if(check.error){
+              console.warn("El INSERT fue aceptado, pero no se pudo verificar el registro:",check.error.message);
+              verificationWarning=true;
+            }else if(check.data){
+              saved=check.data;
+              verified=String(saved.titulo??"").trim()===expectedTitle &&
+                String(saved.descripcion??"").trim()===expectedDescription;
+              if(!verified){
+                console.warn("El registro existe, pero la lectura devuelve textos distintos a los enviados.",{
+                  id:saved.id,
+                  titleMatches:String(saved.titulo??"").trim()===expectedTitle,
+                  descriptionMatches:String(saved.descripcion??"").trim()===expectedDescription
+                });
+                verificationWarning=true;
+              }
+            }else{
+              console.warn("El INSERT no devolvió la fila y la consulta por archivo_url aún no la encuentra.");
+              verificationWarning=true;
+            }
           }
           break;
         }
@@ -400,7 +411,9 @@ async function uploadWork(e){
     const warnings=[];
     if(window.__portfolioLinkNotSaved)warnings.push("el enlace no se guardó porque falta la columna enlace_url en Supabase");
     if(window.__portfolioClassNameNotSaved)warnings.push("el nombre de la clase no se guardó porque falta la columna nombre_clase en Supabase");
-    setMsg(warnings.length ? `Se guardaron ${savedCount} archivo(s), pero ${warnings.join(" y ")}. Ejecuta la migración SQL para habilitar esos datos.` : `¡Listo! Se guardaron ${savedCount} archivo(s) en la Actividad ${activity}.` ,warnings.length ? "error" : "success");
+    const successMessage=`¡Listo! Se guardaron ${savedCount} archivo(s) en la Actividad ${activity}.`;
+    const warningMessage=verificationWarning ? " Supabase aceptó las escrituras, pero no pudo confirmarse la lectura de todos los registros. No vuelvas a subir esos archivos; revisa la lista de trabajos." : "";
+    setMsg(warnings.length ? `Se guardaron ${savedCount} archivo(s), pero ${warnings.join(" y ")}. Ejecuta la migración SQL para habilitar esos datos.` : successMessage+warningMessage,(warnings.length||verificationWarning)?"error":"success");
     window.__portfolioLinkNotSaved=false;
     window.__portfolioClassNameNotSaved=false;
     await loadWorks();
