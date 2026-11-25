@@ -56,8 +56,9 @@ function normalizeStoredText(value){
 }
 
 function isBadDisplayTitle(value){
-  const x=String(value||"").trim().toLowerCase();
-  return !x || x==="{}" || x==="[object object]" || x==="null" || x==="undefined";
+  const x=String(value??"").trim().toLowerCase().replace(/\s+/g,"");
+  const htmlElementText=/^\[objecthtml[a-z0-9]*element\]$/.test(x);
+  return !x || htmlElementText || ["{}","[]","[objectobject]","null","undefined"].includes(x);
 }
 
 function fileBaseName(name){
