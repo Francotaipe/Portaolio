@@ -43,10 +43,20 @@ function isBadDisplayTitle(value){
   const htmlElementText=/^\[objecthtml(?:input|textarea|select|button)element\]$/.test(x);
   return !x || htmlElementText || ["{}","[]","null","undefined","[objectobject]"].includes(x);
 }
+function safeFieldValue(value){
+  if(value && typeof value==="object" && typeof value.value==="string")value=value.value;
+  const text=String(value??"").trim();
+  if(/^\[object HTML[A-Za-z0-9]*Element\]$/i.test(text)||/^\[object Object\]$/i.test(text))return "";
+  return text;
+}
 function readFieldText(id){
-  const element=$(id);
-  if(!element || typeof element.value!=="string")return "";
-  return element.value.trim();
+  return safeFieldValue($(id));
+}
+function sanitizeWorkMetadata(payload){
+  const safe={...payload};
+  safe.titulo=safeFieldValue(safe.titulo);
+  safe.descripcion=safeFieldValue(safe.descripcion);
+  return safe;
 }
 
 function fileBaseName(name){
@@ -405,15 +415,22 @@ async function uploadWork(e){
       });
       uploadedPaths.push(path);
       const {data:urlData}=supabaseClient.storage.from("trabajos").getPublicUrl(path);
-      const payload={usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,nombre_clase:nombreClase,actividad:String(activity),titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name,enlace_url:optionalLink};
+      const payload=sanitizeWorkMetadata({usuario_id:user.id,curso:selectedCourse,periodo:selectedPeriod,semana:selectedWeek,nombre_clase:nombreClase,actividad:String(activity),titulo,descripcion,fecha:date,archivo_url:urlData.publicUrl,archivo_nombre:file.name,enlace_url:optionalLink});
+      if(isBadDisplayTitle(payload.titulo)||isBadDisplayTitle(payload.descripcion)){
+        throw new Error("El título o la descripción no son texto válido. No se guardó el registro.");
+      }
       let rowError=null;
       let linkNotSaved=false;
       let classNameNotSaved=false;
       let activityFallback=false;
-      let insertPayload={...payload};
+      let insertPayload=sanitizeWorkMetadata(payload);
       // Reintenta solo cuando Supabase informa que falta una columna.
       // Así los campos opcionales/nuevos no bloquean la carga del archivo.
       for(let attempt=0;attempt<4;attempt++){
+        insertPayload=sanitizeWorkMetadata(insertPayload);
+        if(isBadDisplayTitle(insertPayload.titulo)||isBadDisplayTitle(insertPayload.descripcion)){
+          throw new Error("Se detectó un campo de formulario inválido. No se enviará a Supabase.");
+        }
         const result=await supabaseClient.from("trabajos")
           .insert(insertPayload)
           .select("id,titulo,descripcion")
@@ -543,9 +560,9 @@ async function saveEditWork(e){
   const period=Number($("editPeriodo").value);
   const week=Number($("editSemana").value);
   const activity=Number($("editActividad").value);
-  const name=$("editTitulo").value.trim();
+  const name=readFieldText("editTitulo");
   const date=$("editFecha").value||null;
-  const description=$("editDescripcion").value.trim();
+  const description=readFieldText("editDescripcion");
   const em=$("editMsg");
   const allowedActivities=activitiesForWeek(course,week);
   if(!course||!period||!week||!activity||!name||!allowedActivities.includes(activity)){
@@ -558,7 +575,13 @@ async function saveEditWork(e){
   em.textContent="Guardando cambios...";
   em.className="msg";
   let error=null;
-  const updatePayload={curso:course,periodo:period,semana:week,actividad:String(activity),titulo:name,fecha,descripcion};
+  const updatePayload=sanitizeWorkMetadata({curso:course,periodo:period,semana:week,actividad:String(activity),titulo:name,fecha,descripcion});
+  if(isBadDisplayTitle(updatePayload.titulo)||isBadDisplayTitle(updatePayload.descripcion)){
+    btn.disabled=false;
+    em.textContent="El título y la descripción deben ser texto válido. No se guardaron cambios.";
+    em.className="msg error";
+    return;
+  }
   if(activityColumnAvailable){
     error=(await supabaseClient.from("trabajos").update(updatePayload).eq("id",id).eq("usuario_id",user.id)).error;
   }
@@ -569,7 +592,7 @@ async function saveEditWork(e){
       em.className="msg error";
       return;
     }
-    const legacyPayload={curso:course,periodo:period,semana:week,titulo:`Actividad ${activity} - ${name}`,fecha,descripcion};
+    const legacyPayload=sanitizeWorkMetadata({curso:course,periodo:period,semana:week,actividad:String(activity),titulo:`Actividad ${activity} - ${name}`,fecha,descripcion});
     error=(await supabaseClient.from("trabajos").update(legacyPayload).eq("id",id).eq("usuario_id",user.id)).error;
     activityColumnAvailable=false;
   }
