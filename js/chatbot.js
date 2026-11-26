@@ -4,23 +4,23 @@
 
   const style = document.createElement("style");
   style.textContent =
-    "#portfolioChatWidget{position:fixed;left:auto;right:10px;bottom:10px;width:195px;height:195px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
-    "#portfolioChatToggle{pointer-events:auto;position:absolute;right:0;bottom:0;left:auto;display:flex;align-items:center;justify-content:center;width:185px;height:185px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:none!important;transform:none!important}" +
+    "#portfolioChatWidget{position:fixed;left:auto;right:10px;bottom:10px;width:145px;height:145px;z-index:9999;font-family:inherit;color:#10233f;pointer-events:none}" +
+    "#portfolioChatToggle{pointer-events:auto;position:absolute;right:0;bottom:0;left:auto;display:flex;align-items:center;justify-content:center;width:138px;height:138px;border:0;border-radius:0;padding:0;background:transparent;box-shadow:none;cursor:pointer;animation:none!important;transform:none!important}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
     "#portfolioChatToggle:hover{filter:drop-shadow(0 4px 5px #0002)}" +
-    ".portfolio-robot{display:inline-flex;position:relative;z-index:2;width:174px;height:174px;align-items:center;justify-content:center;overflow:visible;pointer-events:none;filter:drop-shadow(0 6px 6px #06335b35)}" +
-    ".portfolio-robot-svg{display:block;position:relative;z-index:2;width:168px;height:175px;overflow:visible;transform-origin:center bottom;animation:portfolioRobotFloat 3s ease-in-out infinite}" +
+    ".portfolio-robot{display:inline-flex;position:relative;z-index:2;width:130px;height:130px;align-items:center;justify-content:center;overflow:visible;pointer-events:none;filter:drop-shadow(0 4px 5px #06335b35)}" +
+    ".portfolio-robot-svg{display:block;position:relative;z-index:2;width:126px;height:131px;overflow:visible;transform-origin:center bottom;animation:portfolioRobotFloat 3s ease-in-out infinite}" +
     ".robot-eye{transform-box:fill-box;transform-origin:center;animation:portfolioRobotBlink 5.4s ease-in-out infinite}" +
     "#robotAntennaLight{transform-box:fill-box;transform-origin:center;animation:portfolioRobotPulse 1.8s ease-in-out infinite}" +
-    "#portfolioRobotBubble{position:absolute;left:50%;bottom:166px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:165px;padding:7px 10px;border-radius:14px;background:#fff;border:1px solid #bde8f4;box-shadow:0 3px 14px #08274b24;color:#16436b;font-size:11px;font-weight:700;line-height:1.25;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
+    "#portfolioRobotBubble{position:absolute;left:50%;bottom:126px;transform:translateX(-50%) scaleX(1)!important;transform-origin:center center;width:max-content;max-width:145px;padding:6px 9px;border-radius:12px;background:#fff;border:1px solid #bde8f4;box-shadow:0 3px 12px #08274b24;color:#16436b;font-size:10px;font-weight:700;line-height:1.2;text-align:center;white-space:normal;animation:portfolioBubbleFloat 2.8s ease-in-out infinite;pointer-events:none}" +
     "#portfolioRobotBubble:after{content:\"\";position:absolute;left:50%;bottom:-7px;width:12px;height:12px;background:#fff;border-right:1px solid #bde8f4;border-bottom:1px solid #bde8f4;transform:translateX(-50%) rotate(45deg)}" +
     "@keyframes portfolioBubbleFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}" +
-    "#portfolioChatWindow{display:none;position:fixed;left:auto;right:18px;bottom:198px;width:min(360px,calc(100vw - 36px));height:480px;max-height:calc(100vh - 285px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
+    "#portfolioChatWindow{display:none;position:fixed;left:auto;right:18px;bottom:150px;width:min(360px,calc(100vw - 36px));height:480px;max-height:calc(100vh - 285px);background:#fff;border:1px solid #d7e5f4;border-radius:18px;box-shadow:0 18px 55px #08274b30;overflow:hidden;flex-direction:column;pointer-events:auto}" +
     "@keyframes portfolioRobotFloat{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-7px) rotate(-1.5deg)}50%{transform:translateY(-2px) rotate(1deg)}75%{transform:translateY(-6px) rotate(-.8deg)}}" +
     "@keyframes portfolioRobotBlink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.12)}}" +
     "@keyframes portfolioRobotPulse{0%,100%{opacity:.72;filter:drop-shadow(0 0 2px #73e8ff)}50%{opacity:1;filter:drop-shadow(0 0 9px #73e8ff)}}" +
     "#portfolioChatToggle{isolation:isolate;overflow:visible}" +
-    "#portfolioChatToggle::before{content:'';position:absolute;z-index:1;inset:20px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(119,231,255,.32),rgba(96,158,255,.12) 50%,transparent 72%);animation:portfolioRobotHalo 3.2s ease-in-out infinite}" +
+    "#portfolioChatToggle::before{content:'';position:absolute;z-index:1;inset:15px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(119,231,255,.32),rgba(96,158,255,.12) 50%,transparent 72%);animation:portfolioRobotHalo 3.2s ease-in-out infinite}" +
     "@keyframes portfolioRobotHalo{0%,100%{transform:scale(.94);opacity:.55}50%{transform:scale(1.12);opacity:1}}" +
     "@media(prefers-reduced-motion:reduce){#portfolioChatToggle::before,.portfolio-robot-svg,.robot-eye,#robotAntennaLight,#portfolioRobotBubble{animation:none!important}}" +
     "#portfolioChatWindow.open{display:flex}" +
@@ -35,7 +35,7 @@
     "#portfolioChatForm{display:flex;gap:8px;padding:12px;border-top:1px solid #e4edf6;background:#fff}" +
     "#portfolioChatInput{min-width:0;flex:1;border:1px solid #cbd9e8;border-radius:10px;padding:11px;font:inherit;font-size:13px;outline-color:#0877bd}" +
     "#portfolioChatSend{border:0;border-radius:10px;padding:0 14px;background:#0877bd;color:#fff;font-weight:700;cursor:pointer}" +
-    "@media(max-width:480px){#portfolioChatWidget{right:2px;bottom:4px;width:165px;height:165px}#portfolioChatToggle{width:157px;height:157px}.portfolio-robot{width:148px;height:148px}.portfolio-robot-svg{width:142px;height:148px}#portfolioRobotBubble{bottom:141px;max-width:150px;font-size:10px;padding:6px 8px}#portfolioChatWindow{right:10px;left:auto;bottom:170px;width:calc(100vw - 20px);height:min(500px,calc(100vh - 190px));max-height:calc(100vh - 190px)}}";
+    "@media(max-width:480px){#portfolioChatWidget{right:2px;bottom:4px;width:112px;height:112px}#portfolioChatToggle{width:106px;height:106px}.portfolio-robot{width:100px;height:100px}.portfolio-robot-svg{width:96px;height:100px}#portfolioRobotBubble{bottom:101px;max-width:130px;font-size:9px;padding:5px 7px}#portfolioChatWindow{right:10px;left:auto;bottom:120px;width:calc(100vw - 20px);height:min(500px,calc(100vh - 140px));max-height:calc(100vh - 140px)}}";
   document.head.appendChild(style);
 
   const widget = document.createElement("div");
